@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import defaultPortfolioData from '../../public/data/portfolio.json';
 
 export const MOKKY_ENDPOINT = 'https://2e531a260b0c7ba6.mokky.dev/all';
 const STORAGE_KEY = 'portfolio_mokky_cache_v3';
@@ -6,36 +7,20 @@ const STORAGE_KEY = 'portfolio_mokky_cache_v3';
 const DataContext = createContext();
 
 export const DataProvider = ({ children }) => {
-  // Initial state from cache or empty structure
+  // Initial state from cache or default portfolio.json
   const [data, setData] = useState(() => {
     try {
       const cached = localStorage.getItem(STORAGE_KEY);
       if (cached) {
-        return JSON.parse(cached);
+        const parsed = JSON.parse(cached);
+        if (parsed && Array.isArray(parsed.projects) && parsed.projects.length > 0) {
+          return parsed;
+        }
       }
     } catch (e) {
       console.warn('Failed to parse cached data:', e);
     }
-    return {
-      brand: 'BarkamolDev',
-      fullName: 'Barkamol Abduraximov',
-      shortName: 'Barkamol',
-      role: { en: 'Front-End Engineer & Mentor', uz: 'Front-End Dasturchi & Mentor' },
-      tagline: { en: 'I build fast, scalable, and human-centric web applications with modern architecture.', uz: 'Men toza arxitektura va zamonaviy texnologiyalar bilan tezkor, qulay veb-ilovalar yarataman.' },
-      aboutText: { en: '', uz: '' },
-      location: 'Chust / Tashkent, Uzbekistan',
-      yearsExperience: 3,
-      projectsCompleted: 15,
-      technologiesCount: 14,
-      email: 'barkamol.dev@gmail.com',
-      avatarUrl: '',
-      adminPin: 'admin123',
-      telegramBot: { token: '', chatId: '', enabled: false },
-      socials: [],
-      skills: { frontend: [], backend: [], tools: [] },
-      projects: [],
-      experience: [],
-    };
+    return defaultPortfolioData;
   });
 
   const [recordId, setRecordId] = useState(() => {
@@ -60,7 +45,7 @@ export const DataProvider = ({ children }) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  // Fetch directly from https://2e531a260b0c7ba6.mokky.dev/all
+  // Fetch directly from https://2e531a260b0c7ba6.mokky.dev/all with fallback to defaultPortfolioData
   const fetchFromMokky = useCallback(async (showNotification = false) => {
     setIsLoading(true);
     try {
@@ -75,7 +60,12 @@ export const DataProvider = ({ children }) => {
         targetItem = json;
       }
 
-      if (targetItem && (targetItem.brand || targetItem.fullName || targetItem.projects || targetItem.socials)) {
+      if (
+        targetItem &&
+        (targetItem.brand || targetItem.fullName) &&
+        Array.isArray(targetItem.projects) &&
+        targetItem.projects.length > 0
+      ) {
         setData(targetItem);
         if (targetItem.id) {
           setRecordId(targetItem.id);
@@ -90,11 +80,19 @@ export const DataProvider = ({ children }) => {
         return true;
       }
     } catch (err) {
-      console.error('Failed to load from mokky.dev:', err);
+      console.warn('Failed to load from mokky.dev, using fallback data:', err);
       if (showNotification) {
         addToast(`mokky.dev yuklashda xatolik: ${err.message}`, 'error');
       }
     }
+
+    // Fallback: If current state has empty projects, fill with defaultPortfolioData
+    setData((prev) => {
+      if (!prev || !Array.isArray(prev.projects) || prev.projects.length === 0) {
+        return defaultPortfolioData;
+      }
+      return prev;
+    });
     setIsLoading(false);
     return false;
   }, [addToast]);
@@ -276,9 +274,11 @@ export const DataProvider = ({ children }) => {
     }
   };
 
-  // Reset / Refresh from mokky.dev
+  // Reset / Refresh to default portfolio.json
   const resetToDefault = () => {
-    fetchFromMokky(true);
+    setData(defaultPortfolioData);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultPortfolioData));
+    addToast('Ma\'lumotlar sukut bo\'yicha (portfolio.json) holatiga keltirildi!', 'success');
   };
 
   return (
