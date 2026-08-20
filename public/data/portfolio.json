@@ -1,0 +1,365 @@
+{
+  "brand": "Barkamol Dev",
+  "fullName": "Barkamol Abduraximov",
+  "shortName": "Barkamol",
+  "role": {
+    "en": "Front-End Engineer & Mentor",
+    "uz": "Front-End Dasturchi & Mentor"
+  },
+  "tagline": {
+    "en": "I build fast, scalable, and human-centric web applications with modern architecture.",
+    "uz": "Men toza arxitektura va zamonaviy texnologiyalar bilan tezkor, qulay veb-ilovalar yarataman."
+  },
+  "aboutText": {
+    "en": "Hello there! My name is Barkamol, a Front-End Engineer and Mentor passionate about creating impactful websites. My programming journey started in 2022. I specialize in building responsive, component-driven user interfaces with React, JavaScript, and Tailwind CSS. Beyond development, I actively mentor upcoming developers at tech academies like Chust IT Serves and Coders Planet, and collaborate on human-centric digital products such as APINLINE.",
+    "uz": "Salom! Mening ismim Barkamol. Men zamonaviy va ta'sirchan veb-ilovalar yaratishni yoqtiradigan Front-End dasturchi va mentorman. Dasturlashdagi faoliyatim 2022-yilda boshlangan. React, JavaScript va Tailwind CSS yordamida moslashuvchan va qulay interfeyslar qurish bo'yicha ixtisoslashganman. Shuningdek, Chust IT Serves va Coders Planet akademiyalarida yosh dasturchilarga ustozlik qilib kelmoqdaman hamda APINLINE loyihalarida ish olib boraman."
+  },
+  "location": "Chust / Tashkent, Uzbekistan",
+  "yearsExperience": 3,
+  "projectsCompleted": 15,
+  "technologiesCount": 14,
+  "email": "barkamolbaxtiyarovich@gmail.com",
+  "resumeUrl": "#",
+  "avatarUrl": "https://i.pinimg.com/736x/ef/b9/0a/efb90a48271c4709c74828315466ed41.jpg",
+  "adminPin": "admin123",
+  "telegramBot": {
+    "token": "7568550046:AAEZrb5IP-03NEjrzlcpa96BvlU6n5N0Euc",
+    "chatId": "@messagesfromu",
+    "enabled": true
+  },
+  "socials": [
+    {
+      "id": "telegram",
+      "name": "Telegram",
+      "url": "https://t.me/codealkhattat",
+      "icon": "Send",
+      "enabled": true
+    },
+    {
+      "id": "github",
+      "name": "GitHub",
+      "url": "https://github.com/barkamol-dev",
+      "icon": "Github",
+      "enabled": true
+    },
+    {
+      "id": "linkedin",
+      "name": "LinkedIn",
+      "url": "https://linkedin.com/in/barkamol",
+      "icon": "Linkedin",
+      "enabled": true
+    },
+    {
+      "id": "instagram",
+      "name": "Instagram",
+      "url": "https://instagram.com/barkamol_dev",
+      "icon": "Instagram",
+      "enabled": true
+    },
+    {
+      "id": "gmail",
+      "name": "Email",
+      "url": "mailto:barkamolbaxtiyarovich@gmail.com",
+      "icon": "Mail",
+      "enabled": true
+    }
+  ],
+  "skills": {
+    "frontend": [
+      {
+        "name": "HTML5 & Modern CSS3",
+        "level": 98
+      },
+      {
+        "name": "JavaScript (ES6+)",
+        "level": 92
+      },
+      {
+        "name": "React.js",
+        "level": 94
+      },
+      {
+        "name": "Tailwind CSS",
+        "level": 95
+      },
+      {
+        "name": "Bootstrap 5",
+        "level": 90
+      },
+      {
+        "name": "TypeScript Basics",
+        "level": 80
+      }
+    ],
+    "backend": [
+      {
+        "name": "Telegram Bot API",
+        "level": 95
+      },
+      {
+        "name": "REST API Integration",
+        "level": 92
+      },
+      {
+        "name": "Node.js (Runtime)",
+        "level": 78
+      },
+      {
+        "name": "Express.js",
+        "level": 74
+      },
+      {
+        "name": "SweetAlert2 / UI Popups",
+        "level": 95
+      }
+    ],
+    "tools": [
+      {
+        "name": "VS Code & Debugging",
+        "level": 98
+      },
+      {
+        "name": "Git & GitHub",
+        "level": 92
+      },
+      {
+        "name": "Vite / Webpack",
+        "level": 88
+      },
+      {
+        "name": "Figma to Responsive Code",
+        "level": 90
+      },
+      {
+        "name": "Postman API Testing",
+        "level": 86
+      }
+    ]
+  },
+  "projects": [
+    {
+      "id": "proj-1",
+      "title": "Inamjanov Shop",
+      "badge": "Featured",
+      "featured": true,
+      "description": {
+        "en": "An external shop-integrated 3D designer portfolio website showcasing original 3D models with responsive catalogs and sales redirection.",
+        "uz": "3D dizaynerning original ishlarini namoyish etuvchi, mahsulotlarni filtrlash va xarid qilish tizimiga ega portfolio do'kon."
+      },
+      "image": "https://i.postimg.cc/W3bDhQty/Inamjanov-Shop-Modern-Lighting-Collection-1.png",
+      "tags": [
+        "React",
+        "Tailwind CSS",
+        "Vite",
+        "E-Commerce UI"
+      ],
+      "demoUrl": "https://inamjanovshop.vercel.app/",
+      "codeUrl": "https://github.com/barkamol-dev"
+    },
+    {
+      "id": "proj-2",
+      "title": "Apinline Platform",
+      "badge": "Collaboration",
+      "featured": true,
+      "description": {
+        "en": "A modern human-centric digital web application and course platform built for seamless user experience and accessibility.",
+        "uz": "Insonlar uchun qulay, yuqori tezlik va zamonaviy UI/UX dizayniga ega bo'lgan innovatsion platforma."
+      },
+      "image": "https://picsum.photos/seed/apinline-suite/700/500",
+      "tags": [
+        "React",
+        "JavaScript",
+        "Tailwind CSS",
+        "REST API"
+      ],
+      "demoUrl": "https://abduraximov.vercel.app/",
+      "codeUrl": "https://github.com/barkamol-dev"
+    },
+    {
+      "id": "proj-3",
+      "title": "CyberDev CLI Terminal Portfolio",
+      "badge": "Interactive",
+      "featured": true,
+      "description": {
+        "en": "A retro-cyber hacker-themed developer portfolio equipped with an interactive Linux command shell and 3D WebGL terrain.",
+        "uz": "Real vaqtli Linux CLI terminali, 3D to'lqinli grid va ko'p tilli tizimga ega bo'lgan interaktiv portfolio."
+      },
+      "image": "https://picsum.photos/seed/cyber-terminal/700/500",
+      "tags": [
+        "Three.js",
+        "JavaScript",
+        "CSS3 Canvas",
+        "CLI Engine"
+      ],
+      "demoUrl": "#terminal",
+      "codeUrl": "https://github.com/barkamol-dev"
+    },
+    {
+      "id": "proj-4",
+      "title": "Lighting & Decor Collection",
+      "badge": "E-Commerce",
+      "featured": false,
+      "description": {
+        "en": "A modern lighting and decor collection web app with interactive galleries, category sorting, and fast client-side rendering.",
+        "uz": "Interaktiv galereyalar, saralash va tezkor ishlash imkoniyatiga ega bo'lgan zamonaviy yoritish tizimlari katalogi."
+      },
+      "image": "https://picsum.photos/seed/lighting-catalog/700/500",
+      "tags": [
+        "React",
+        "Tailwind CSS",
+        "Figma to Code",
+        "Vite"
+      ],
+      "demoUrl": "https://inamjanovshop.vercel.app/",
+      "codeUrl": "https://github.com/barkamol-dev"
+    },
+    {
+      "id": "proj-5",
+      "title": "Automated Telegram Dispatcher",
+      "badge": "Service",
+      "featured": false,
+      "description": {
+        "en": "Direct Telegram bot communication engine allowing clients to send instant feedback from contact forms straight to chat channels.",
+        "uz": "Mijozlar yuborgan xabarlarni to'g'ridan-to'g'ri Telegram kanalga yetkazib beruvchi avtomatlashtirilgan tizim."
+      },
+      "image": "https://picsum.photos/seed/telegram-bot/700/500",
+      "tags": [
+        "Node.js",
+        "Telegram API",
+        "REST API",
+        "SweetAlert2"
+      ],
+      "demoUrl": "#contact",
+      "codeUrl": "https://github.com/barkamol-dev"
+    },
+    {
+      "id": "proj-6",
+      "title": "Mentor Progress Dashboard",
+      "badge": "Dashboard",
+      "featured": false,
+      "description": {
+        "en": "An educational dashboard for tracking student coding milestones, homework submissions, and frontend bootcamp progression.",
+        "uz": "O'quvchilarning dasturlash bo'yicha ko'nikmalari, vazifalari va darslardagi rivojlanishini kuzatish tizimi."
+      },
+      "image": "https://picsum.photos/seed/mentor-dash/700/500",
+      "tags": [
+        "React",
+        "JavaScript",
+        "CSS Grid",
+        "Chart.js"
+      ],
+      "demoUrl": "https://abduraximov.vercel.app/",
+      "codeUrl": "https://github.com/barkamol-dev"
+    }
+  ],
+  "experience": [
+    {
+      "id": "exp-1",
+      "role": {
+        "en": "Front-End Mentor & Developer",
+        "uz": "Front-End Mentor & Dasturchi"
+      },
+      "company": "Chust IT Serves",
+      "period": {
+        "en": "Jan 2025 — Present",
+        "uz": "Yanvar 2025 — Hozirgacha"
+      },
+      "description": {
+        "en": "Currently working at Chust IT Serves as a Front-End Mentor. Teaching advanced React ecosystem, guiding students through practical production workflows, and developing client projects.",
+        "uz": "Hozirda Chust IT Serves markazida Front-End mentori sifatida faoliyat olib bormoqdaman. O'quvchilarga React texnologiyalarini o'rgatish va mijozlar uchun loyihalar ishlab chiqish."
+      },
+      "points": {
+        "en": [
+          "Teaching independent batches in HTML/CSS, Tailwind CSS, JavaScript, and React.",
+          "Guiding students through real-world Git workflows and modular project architecture.",
+          "Building production client interfaces and commercial applications."
+        ],
+        "uz": [
+          "HTML/CSS, Tailwind CSS, JavaScript va React bo'yicha mustaqil guruhlarga ta'lim berish.",
+          "O'quvchilarga real loyihalar yaratish va professional Git amaliyotlarini o'rgatish.",
+          "Mijozlar uchun sifatli va tezkor interfeyslar ishlab chiqish."
+        ]
+      }
+    },
+    {
+      "id": "exp-2",
+      "role": {
+        "en": "Front-End Mentor",
+        "uz": "Front-End Mentor"
+      },
+      "company": "Coders Planet",
+      "period": {
+        "en": "2024 (Full Year)",
+        "uz": "2024 (To'liq Yil)"
+      },
+      "description": {
+        "en": "Signed a contract at the start of 2024 and led frontend bootcamp tracks. Made strong strides in personal engineering skill and student career placement.",
+        "uz": "2024-yil boshida yangi kompaniya bilan shartnoma imzolab, frontend dasturlash bo'yicha intensiv kurslarni muvaffaqiyatli olib bordim."
+      },
+      "points": {
+        "en": [
+          "Delivered project-based courses focusing on responsive UI, JavaScript DOM, and React.",
+          "Mentored dozens of students toward building production-ready portfolio projects.",
+          "Enhanced internal teaching methodologies and student feedback cycles."
+        ],
+        "uz": [
+          "Moslashuvchan interfeyslar, JavaScript va React bo'yicha amaliy loyihalarga asoslangan darslar o'tish.",
+          "O'nlab o'quvchilarga o'zlarining birinchi portfolio loyihalarini yaratishda ustozlik qilish.",
+          "O'qitish metodikasi va o'quvchilar bilan ishlash samaradorligini oshirish."
+        ]
+      }
+    },
+    {
+      "id": "exp-3",
+      "role": {
+        "en": "Front-End Mentor & Apprentice",
+        "uz": "Front-End Mentor & Shogird"
+      },
+      "company": "IT School",
+      "period": {
+        "en": "Oct 2023 — End of 2023",
+        "uz": "Okt 2023 — 2023 Oxirigacha"
+      },
+      "description": {
+        "en": "Received an invitation toward late 2023. Initially learned workflows and best practices under a senior mentor, then transitioned into teaching independent student cohorts.",
+        "uz": "Yil oxiriga yaqin taklif olib, dastlab katta mentor qo'l ostida ish o'rganib, so'ngra mustaqil guruhlarga dars berishni boshladim."
+      },
+      "points": {
+        "en": [
+          "Learned production coding workflows, code reviews, and structured curriculum delivery.",
+          "Trained beginner students in web fundamentals: HTML5, CSS3, Flexbox/Grid, and JavaScript basics."
+        ],
+        "uz": [
+          "Kodlash standartlari, kod tahlili va darslarni tizimli tashkil etishni o'rgandim.",
+          "Boshlang'ich o'quvchilarga HTML5, CSS3, Flexbox/Grid va JavaScript asoslaridan saboq berdim."
+        ]
+      }
+    },
+    {
+      "id": "exp-4",
+      "role": {
+        "en": "Web Developer Collaborator",
+        "uz": "Veb Dasturchi Hamkor"
+      },
+      "company": "APINLINE",
+      "period": {
+        "en": "2024 — Present",
+        "uz": "2024 — Hozirgacha"
+      },
+      "description": {
+        "en": "Focusing on crafting human-centric software and modern responsive web experiences available on APINLINE.",
+        "uz": "Insonlar uchun qulay va zamonaviy raqamli mahsulotlar hamda interfeyslar yaratish ustida ishlash."
+      },
+      "points": {
+        "en": [
+          "Collaborating on web products, course landing pages, and interactive UI modules.",
+          "Ensuring cross-device compatibility, fast load speeds, and clean component structures."
+        ],
+        "uz": [
+          "Veb-mahsulotlar, kurs sahifalari va interaktiv UI modullari ustida ishlash.",
+          "Barcha qurilmalarda bir xil chiroyli va tez ishlashini ta'minlash."
+        ]
+      }
+    }
+  ]
+}
