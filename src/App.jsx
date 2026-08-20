@@ -18,6 +18,12 @@ import { Toast } from './components/ui/Toast';
 
 export default function App() {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+
+  const handleOpenAdmin = (authenticated = false) => {
+    setIsAdminAuthenticated(authenticated);
+    setIsAdminOpen(true);
+  };
 
   // Secret keyboard shortcut (Ctrl + Shift + A) to open Admin Panel
   useEffect(() => {
@@ -64,7 +70,7 @@ export default function App() {
             <SkillsSection />
             <ProjectsSection />
             <ExperienceSection />
-            <TerminalSection onOpenAdmin={() => setIsAdminOpen(true)} />
+            <TerminalSection onOpenAdmin={handleOpenAdmin} />
             <ContactSection />
           </main>
 
@@ -72,7 +78,11 @@ export default function App() {
           <Footer />
 
           {/* Admin Control Panel Modal */}
-          <AdminModal isOpen={isAdminOpen} onClose={() => setIsAdminOpen(false)} />
+          <AdminModal
+            isOpen={isAdminOpen}
+            isAuthenticated={isAdminAuthenticated}
+            onClose={() => setIsAdminOpen(false)}
+          />
         </div>
       </LanguageProvider>
     </DataProvider>

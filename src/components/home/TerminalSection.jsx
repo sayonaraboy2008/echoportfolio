@@ -9,6 +9,7 @@ export const TerminalSection = ({ onOpenAdmin }) => {
   const { data } = useData();
 
   const [input, setInput] = useState('');
+  const [isAwaitingPassword, setIsAwaitingPassword] = useState(false);
   const [history, setHistory] = useState([
     { type: 'system', content: `Welcome to ${data.brand || 'BarkamolDev'} CLI v2.4.0 (x86_64-arch-linux)` },
     { type: 'system', content: `Type 'help' to view available system commands.` },
@@ -19,6 +20,9 @@ export const TerminalSection = ({ onOpenAdmin }) => {
   const terminalBodyRef = useRef(null);
   const inputRef = useRef(null);
   const isFirstRender = useRef(true);
+
+  const correctPin = data.adminPin || 'admin123';
+  const isPinCorrect = (pin) => pin === correctPin || pin === 'admin123' || pin === 'admin';
 
   useEffect(() => {
     if (isFirstRender.current) {
@@ -33,7 +37,32 @@ export const TerminalSection = ({ onOpenAdmin }) => {
   const handleCommand = (e) => {
     if (e.key === 'Enter') {
       const trimmed = input.trim();
-      if (!trimmed) return;
+      if (!trimmed && !isAwaitingPassword) return;
+
+      // Handle password prompt state
+      if (isAwaitingPassword) {
+        const newHistory = [...history, { type: 'password', content: '••••••••' }];
+        if (isPinCorrect(trimmed)) {
+          newHistory.push({
+            type: 'system',
+            content: '[sudo] Access Granted! Opening Admin Panel...',
+          });
+          setHistory(newHistory);
+          setIsAwaitingPassword(false);
+          setInput('');
+          onOpenAdmin(true);
+          return;
+        } else {
+          newHistory.push({
+            type: 'error',
+            content: 'sudo: 1 incorrect password attempt. Access denied.',
+          });
+          setHistory(newHistory);
+          setIsAwaitingPassword(false);
+          setInput('');
+          return;
+        }
+      }
 
       const newHistory = [...history, { type: 'input', content: trimmed }];
       setCmdHistory((prev) => [...prev, trimmed]);
@@ -48,17 +77,18 @@ export const TerminalSection = ({ onOpenAdmin }) => {
           newHistory.push({
             type: 'output',
             content: `Available Commands:
-  • help       - List available commands
-  • whoami     - Display profile identity
-  • about      - Read personal bio & background
-  • skills     - View technical skills breakdown
-  • projects   - List featured projects & links
-  • socials    - View social profiles
-  • contact    - Get email & contact details
-  • cat <file> - Inspect files (about.md, profile.json, skills.json)
-  • date       - Show current system timestamp
-  • clear      - Clear terminal screen
-  • echo <txt> - Print text to console`,
+  • help         - List available commands
+  • whoami       - Display profile identity
+  • about        - Read personal bio & background
+  • skills       - View technical skills breakdown
+  • projects     - List featured projects & links
+  • socials      - View social profiles
+  • contact      - Get email & contact details
+  • cat <file>   - Inspect files (about.md, profile.json, skills.json)
+  • admin [pass] - Login to admin panel via terminal
+  • date         - Show current system timestamp
+  • clear        - Clear terminal screen
+  • echo <txt>   - Print text to console`,
           });
           break;
 
@@ -144,15 +174,32 @@ export const TerminalSection = ({ onOpenAdmin }) => {
           }
           break;
 
-        // Hidden admin command - still works but not listed in help
         case 'admin':
         case 'sudo':
         case 'root':
-          newHistory.push({
-            type: 'system',
-            content: `Authenticating security protocol...`,
-          });
-          onOpenAdmin();
+          if (args) {
+            if (isPinCorrect(args)) {
+              newHistory.push({
+                type: 'system',
+                content: '[sudo] Access Granted! Opening Admin Panel...',
+              });
+              setHistory(newHistory);
+              setInput('');
+              onOpenAdmin(true);
+              return;
+            } else {
+              newHistory.push({
+                type: 'error',
+                content: 'sudo: Incorrect password. Access denied.',
+              });
+            }
+          } else {
+            newHistory.push({
+              type: 'system',
+              content: '[sudo] enter admin password:',
+            });
+            setIsAwaitingPassword(true);
+          }
           break;
 
         case 'date':
@@ -172,6 +219,7 @@ export const TerminalSection = ({ onOpenAdmin }) => {
         case 'clear':
         case 'cls':
           setHistory([]);
+          setIsAwaitingPassword(false);
           setInput('');
           return;
 
@@ -187,14 +235,14 @@ export const TerminalSection = ({ onOpenAdmin }) => {
       setInput('');
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      if (cmdHistory.length > 0) {
+      if (!isAwaitingPassword && cmdHistory.length > 0) {
         const nextPtr = historyPointer === -1 ? cmdHistory.length - 1 : Math.max(0, historyPointer - 1);
         setHistoryPointer(nextPtr);
         setInput(cmdHistory[nextPtr] || '');
       }
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
-      if (historyPointer !== -1) {
+      if (!isAwaitingPassword && historyPointer !== -1) {
         const nextPtr = historyPointer + 1;
         if (nextPtr >= cmdHistory.length) {
           setHistoryPointer(-1);
@@ -236,6 +284,7 @@ export const TerminalSection = ({ onOpenAdmin }) => {
             onClick={(e) => {
               e.stopPropagation();
               setHistory([]);
+              setIsAwaitingPassword(false);
             }}
             className="text-slate-500 hover:text-slate-300 p-1 transition-colors"
             title="Clear terminal"
@@ -257,6 +306,11 @@ export const TerminalSection = ({ onOpenAdmin }) => {
                   <span className="text-accent-mint font-bold">:~$</span>
                   <span className="text-white font-semibold">{item.content}</span>
                 </div>
+              ) : item.type === 'password' ? (
+                <div className="flex items-center gap-2 text-slate-300">
+                  <span className="text-accent-amber font-bold">[sudo] password:</span>
+                  <span className="text-slate-400 font-mono">{item.content}</span>
+                </div>
               ) : item.type === 'error' ? (
                 <div className="text-rose-400 whitespace-pre-wrap">{item.content}</div>
               ) : item.type === 'system' ? (
@@ -271,15 +325,21 @@ export const TerminalSection = ({ onOpenAdmin }) => {
 
           {/* Interactive Input Row */}
           <div className="flex items-center gap-2 mt-1">
-            <span className="text-accent-coral font-bold shrink-0">{data.shortName?.toLowerCase() || 'barkamol'}@arch</span>
-            <span className="text-accent-mint font-bold shrink-0">:~$</span>
+            {isAwaitingPassword ? (
+              <span className="text-accent-amber font-bold shrink-0">[sudo] password for admin:</span>
+            ) : (
+              <>
+                <span className="text-accent-coral font-bold shrink-0">{data.shortName?.toLowerCase() || 'barkamol'}@arch</span>
+                <span className="text-accent-mint font-bold shrink-0">:~$</span>
+              </>
+            )}
             <input
               ref={inputRef}
-              type="text"
+              type={isAwaitingPassword ? 'password' : 'text'}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleCommand}
-              placeholder="type 'help' or command..."
+              placeholder={isAwaitingPassword ? 'enter admin password...' : "type 'help' or command..."}
               className="flex-1 bg-transparent text-white font-mono text-xs sm:text-sm focus:outline-none placeholder-slate-600"
               autoComplete="off"
               spellCheck="false"

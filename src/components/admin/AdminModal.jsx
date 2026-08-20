@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useData } from '../../context/DataContext';
 import { Modal } from '../ui/Modal';
@@ -20,14 +20,20 @@ import {
   LogOut,
 } from 'lucide-react';
 
-export const AdminModal = ({ isOpen, onClose }) => {
+export const AdminModal = ({ isOpen, onClose, isAuthenticated: propAuth = false }) => {
   const { t } = useLanguage();
   const { data } = useData();
 
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(propAuth);
   const [pinInput, setPinInput] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [activeTab, setActiveTab] = useState('general');
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsAuthenticated(propAuth);
+    }
+  }, [isOpen, propAuth]);
 
   const correctPin = data.adminPin || 'admin123';
 
