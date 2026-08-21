@@ -19,64 +19,64 @@ export const SkillsSection = () => {
       key: 'frontend',
       title: t('skills.frontend'),
       icon: Code,
-      color: 'text-accent-mint',
-      barColor: 'from-accent-mint/80 to-accent-blue/80',
+      color: 'text-accent-cyan',
+      barColor: 'from-accent-cyan to-accent-blue',
       items: skillsData.frontend || [],
     },
     {
       key: 'backend',
       title: t('skills.backend'),
       icon: Server,
-      color: 'text-accent-coral',
-      barColor: 'from-accent-coral/80 to-accent-amber/80',
+      color: 'text-accent-violet',
+      barColor: 'from-accent-violet to-purple-500',
       items: skillsData.backend || [],
     },
     {
       key: 'tools',
       title: t('skills.tools'),
       icon: Wrench,
-      color: 'text-accent-amber',
-      barColor: 'from-accent-amber/80 to-accent-mint/80',
+      color: 'text-accent-cyan',
+      barColor: 'from-emerald-400 to-accent-cyan',
       items: skillsData.tools || [],
     },
   ];
 
   return (
-    <section id="skills" className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto relative z-10">
+    <section id="skills" className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto relative z-10">
       <SectionHeading
-        eyebrow="$ ls ~/skills --all"
+        eyebrow="[ SKILLS & EXPERTISE ]"
         title={t('skills.title')}
         subtitle={t('skills.subtitle')}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
         {categories.map((cat) => {
           const Icon = cat.icon;
           return (
             <div
               key={cat.key}
-              className="bg-[#121721]/90 border border-slate-800/90 rounded-2xl p-6 sm:p-7 backdrop-blur-md hover:border-slate-700 transition-all shadow-xl flex flex-col justify-between"
+              className="bg-white/90 dark:bg-[#0c1017]/90 border border-slate-200 dark:border-slate-800/90 rounded-2xl p-6 backdrop-blur-md hover:border-slate-300 dark:hover:border-slate-700 transition-all shadow-lg dark:shadow-xl flex flex-col justify-between"
             >
               <div>
-                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800">
-                  <div className={`p-2.5 rounded-xl bg-slate-900 border border-slate-800 ${cat.color}`}>
-                    <Icon className="w-5 h-5" />
+                <div className="flex items-center gap-3 mb-5 pb-4 border-b border-slate-200 dark:border-slate-800">
+                  <div className={`p-2 rounded-xl bg-slate-100 dark:bg-[#131926] border border-slate-200 dark:border-slate-800 ${cat.color}`}>
+                    <Icon className="w-4.5 h-4.5" />
                   </div>
-                  <h3 className="text-xl font-heading font-bold text-white">
+                  <h3 className="text-lg font-heading font-bold text-slate-900 dark:text-white">
                     {cat.title}
                   </h3>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-3.5">
                   {cat.items.map((skill, index) => (
                     <div key={index} className="group">
                       <div className="flex justify-between items-center text-xs font-mono mb-1.5">
-                        <span className="text-slate-300 group-hover:text-white transition-colors">
+                        <span className="text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
                           {skill.name}
                         </span>
-                        <span className="text-slate-400 font-semibold">{skill.level}%</span>
+                        <span className="text-slate-500 dark:text-slate-400 font-semibold">{skill.level}%</span>
                       </div>
-                      <div className="w-full h-2 bg-slate-900 rounded-full overflow-hidden border border-slate-800/80">
+                      <div className="w-full h-1.5 bg-slate-100 dark:bg-[#05070c] rounded-full overflow-hidden border border-slate-200 dark:border-slate-800/80">
                         <div
                           className={`h-full rounded-full bg-gradient-to-r ${cat.barColor} transition-all duration-1000 group-hover:brightness-125`}
                           style={{ width: `${skill.level}%` }}

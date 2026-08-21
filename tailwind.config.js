@@ -9,18 +9,20 @@ export default {
     extend: {
       colors: {
         bg: {
-          darker: '#0a0d14',
-          dark: '#0d1117',
-          card: '#161b22',
-          cardHover: '#1c2128',
-          border: '#30363d',
+          darker: '#090d16',
+          dark: '#0d121d',
+          card: '#131926',
+          cardHover: '#1a2234',
+          border: '#222d42',
         },
         accent: {
+          cyan: '#38bdf8',
+          violet: '#818cf8',
           mint: '#64ffda',
-          coral: '#ff8383',
-          amber: '#ffb454',
-          blue: '#58a6ff',
-          purple: '#bc8cff',
+          coral: '#f87171',
+          amber: '#fbbf24',
+          blue: '#60a5fa',
+          purple: '#c084fc',
         },
       },
       fontFamily: {
@@ -35,7 +37,7 @@ export default {
       keyframes: {
         float: {
           '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-8px)' },
+          '50%': { transform: 'translateY(-6px)' },
         }
       }
     },

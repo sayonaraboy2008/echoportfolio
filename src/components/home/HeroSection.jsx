@@ -29,47 +29,58 @@ export const HeroSection = () => {
 
   const activeSocials = (data.socials || []).filter(s => s.enabled !== false);
 
-  return (
-    <section id="home" className="relative min-h-[95vh] flex items-center justify-center pt-24 pb-16 px-4 sm:px-6 lg:px-8 overflow-hidden">
-      {/* Background Glows */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-gradient-to-tr from-accent-mint/10 via-accent-coral/10 to-accent-amber/10 rounded-full blur-3xl pointer-events-none -z-10" />
+  const [copiedEmail, setCopiedEmail] = useState(false);
 
-      <div className="max-w-5xl mx-auto w-full flex flex-col items-center text-center z-10">
-        {/* Eyebrow CLI Badge */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-slate-800 text-xs font-mono text-slate-300 shadow-md mb-6 hover:border-accent-mint/40 transition-colors">
-          <span className="w-2 h-2 rounded-full bg-accent-mint animate-ping" />
-          <span className="text-slate-400">~/portfolio</span>
-          <span className="text-accent-mint font-bold">$</span>
-          <span>whoami</span>
+  const handleCopyEmail = () => {
+    if (data.email) {
+      navigator.clipboard.writeText(data.email);
+      setCopiedEmail(true);
+      setTimeout(() => setCopiedEmail(false), 2500);
+    }
+  };
+
+  return (
+    <section id="home" className="relative min-h-[85vh] flex items-center justify-center pt-28 pb-12 sm:pb-16 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      {/* Subtle Central Glow */}
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-tr from-accent-cyan/15 via-accent-violet/10 to-transparent rounded-full blur-3xl pointer-events-none -z-10" />
+
+      <div className="max-w-4xl mx-auto w-full flex flex-col items-center text-center z-10">
+        {/* Availability Status Badge */}
+        <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/90 dark:bg-[#0c1017]/90 border border-slate-200 dark:border-slate-800 text-xs font-medium text-slate-700 dark:text-slate-300 shadow-md mb-6 hover:border-accent-cyan/50 transition-colors">
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+          </span>
+          <span className="font-mono text-slate-600 dark:text-slate-400">Available for projects & mentorship</span>
         </div>
 
         {/* Name Heading */}
-        <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold font-heading text-white tracking-tight leading-[1.1] mb-4">
-          <span className="text-slate-400 block sm:inline">{t('hero.greeting')} </span>
+        <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold font-heading text-slate-900 dark:text-white tracking-tight leading-[1.08] mb-3">
+          <span className="text-slate-500 dark:text-slate-400 block sm:inline font-normal">{t('hero.greeting')} </span>
           <span className="text-gradient">{data.shortName || 'Barkamol'}.</span>
         </h1>
 
         {/* Role Subtitle */}
-        <p className="text-xl sm:text-2xl md:text-3xl font-heading font-medium text-slate-300 mb-6 flex items-center justify-center gap-2">
-          <span>{getText(data.role)}</span>
+        <p className="text-lg sm:text-2xl font-heading font-medium text-slate-700 dark:text-slate-300 mb-6">
+          {getText(data.role)}
         </p>
 
         {/* Tagline Box with Typing cursor */}
-        <div className="w-full max-w-2xl bg-slate-900/70 border border-slate-800/90 rounded-xl p-4 sm:p-5 backdrop-blur-md mb-8 shadow-xl">
-          <p className="font-mono text-sm sm:text-base text-slate-300 flex items-start text-left">
-            <span className="text-accent-mint mr-2.5 font-bold select-none">&gt;</span>
+        <div className="w-full max-w-2xl bg-white/80 dark:bg-[#0c1017]/80 border border-slate-200 dark:border-slate-800/90 rounded-2xl p-4 sm:p-5 backdrop-blur-md mb-7 shadow-xl">
+          <p className="font-mono text-xs sm:text-sm text-slate-800 dark:text-slate-300 flex items-start text-left leading-relaxed">
+            <span className="text-accent-cyan mr-2 font-bold select-none">&gt;</span>
             <span className="flex-1">
               {displayedText}
-              <span className="inline-block w-2 h-4 bg-accent-mint ml-1 animate-pulse align-middle" />
+              <span className="inline-block w-2 h-4 bg-accent-cyan ml-1 animate-pulse align-middle" />
             </span>
           </p>
         </div>
 
-        {/* CTA Buttons */}
-        <div className="flex flex-wrap items-center justify-center gap-4 mb-10">
+        {/* CTA Buttons & Email Copy */}
+        <div className="flex flex-wrap items-center justify-center gap-3.5 mb-8">
           <a
             href="#projects"
-            className="px-6 py-3.5 rounded-xl font-heading font-bold text-sm bg-accent-mint text-slate-950 hover:bg-[#72ffe0] transition-all shadow-lg shadow-accent-mint/20 hover:shadow-accent-mint/40 hover:-translate-y-0.5 flex items-center gap-2"
+            className="px-6 py-3 rounded-xl font-heading font-bold text-xs sm:text-sm bg-accent-cyan text-slate-950 hover:bg-[#50c8ff] transition-all shadow-lg shadow-accent-cyan/20 hover:shadow-accent-cyan/40 hover:-translate-y-0.5 active:scale-95 cursor-pointer flex items-center gap-2"
           >
             <span>{t('hero.ctaProjects')}</span>
             <ArrowRight className="w-4 h-4" />
@@ -77,21 +88,31 @@ export const HeroSection = () => {
 
           <a
             href="#contact"
-            className="px-6 py-3.5 rounded-xl font-heading font-bold text-sm bg-slate-900/80 hover:bg-slate-800 text-white border border-slate-700/80 hover:border-slate-500 transition-all shadow-md hover:-translate-y-0.5"
+            className="px-6 py-3 rounded-xl font-heading font-bold text-xs sm:text-sm bg-slate-100 dark:bg-[#0c1017] hover:bg-slate-200 dark:hover:bg-[#141a24] text-slate-900 dark:text-white border border-slate-300 dark:border-slate-800 hover:border-accent-cyan/50 transition-all shadow-md hover:-translate-y-0.5 active:scale-95 cursor-pointer"
           >
             {t('hero.ctaContact')}
           </a>
+
+          {data.email && (
+            <button
+              onClick={handleCopyEmail}
+              className="px-4 py-3 rounded-xl font-mono text-xs bg-slate-100 dark:bg-[#0c1017]/90 hover:bg-slate-200 dark:hover:bg-[#141a24] text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-600 transition-all active:scale-95 cursor-pointer flex items-center gap-2"
+              title="Copy Email address"
+            >
+              <span>{copiedEmail ? '✓ Copied!' : data.email}</span>
+            </button>
+          )}
         </div>
 
         {/* Social Links Row */}
-        <div className="flex items-center justify-center gap-3 flex-wrap">
+        <div className="flex items-center justify-center gap-2.5 flex-wrap">
           {activeSocials.map((social) => (
             <a
               key={social.id || social.name}
               href={social.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-400 hover:text-accent-mint hover:border-accent-mint/40 hover:bg-slate-850 transition-all hover:scale-110 shadow-sm"
+              className="p-2.5 rounded-xl bg-slate-100 dark:bg-[#0c1017] border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-sky-600 dark:hover:text-accent-cyan hover:border-sky-300 dark:hover:border-accent-cyan/40 hover:bg-slate-200 dark:hover:bg-[#141a24] transition-all hover:scale-110 active:scale-95 cursor-pointer shadow-sm"
               title={social.name}
             >
               <SocialIcon name={social.icon || social.id || social.name} className="w-5 h-5" />
@@ -102,11 +123,11 @@ export const HeroSection = () => {
         {/* Scroll Indicator */}
         <a
           href="#about"
-          className="mt-14 inline-flex flex-col items-center gap-2 text-xs font-mono text-slate-500 hover:text-accent-mint transition-colors group"
+          className="mt-10 inline-flex flex-col items-center gap-1.5 text-[11px] font-mono text-slate-500 dark:text-slate-500 hover:text-accent-cyan transition-colors group"
         >
           <span>{t('hero.scroll')}</span>
-          <div className="w-5 h-8 rounded-full border border-slate-700 flex items-start justify-center p-1 group-hover:border-accent-mint transition-colors">
-            <div className="w-1.5 h-2 bg-accent-mint rounded-full animate-bounce" />
+          <div className="w-4 h-7 rounded-full border border-slate-400 dark:border-slate-700 flex items-start justify-center p-1 group-hover:border-accent-cyan transition-colors">
+            <div className="w-1 h-1.5 bg-accent-cyan rounded-full animate-bounce" />
           </div>
         </a>
       </div>

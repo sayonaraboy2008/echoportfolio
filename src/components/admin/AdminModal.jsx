@@ -8,6 +8,7 @@ import { SocialsManager } from './SocialsManager';
 import { SkillsManager } from './SkillsManager';
 import { ExperienceManager } from './ExperienceManager';
 import { JsonSyncManager } from './JsonSyncManager';
+import { AnalyticsManager } from './AnalyticsManager';
 import {
   Lock,
   Unlock,
@@ -17,6 +18,7 @@ import {
   Cpu,
   Briefcase,
   Database,
+  BarChart3,
   LogOut,
 } from 'lucide-react';
 
@@ -55,6 +57,7 @@ export const AdminModal = ({ isOpen, onClose, isAuthenticated: propAuth = false 
 
   const tabs = [
     { id: 'general', label: t('admin.tabGeneral'), icon: Sliders },
+    { id: 'analytics', label: '📊 Statistika', icon: BarChart3 },
     { id: 'projects', label: t('admin.tabProjects'), icon: FolderGit2 },
     { id: 'socials', label: t('admin.tabSocials'), icon: Share2 },
     { id: 'skills', label: t('admin.tabSkills'), icon: Cpu },
@@ -141,6 +144,7 @@ export const AdminModal = ({ isOpen, onClose, isAuthenticated: propAuth = false 
           {/* Active Tab Component Content */}
           <div className="pt-2">
             {activeTab === 'general' && <GeneralSettings />}
+            {activeTab === 'analytics' && <AnalyticsManager />}
             {activeTab === 'projects' && <ProjectsManager />}
             {activeTab === 'socials' && <SocialsManager />}
             {activeTab === 'skills' && <SkillsManager />}

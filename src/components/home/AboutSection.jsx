@@ -63,43 +63,43 @@ export const AboutSection = () => {
   };
 
   return (
-    <section id="about" className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto relative z-10">
-      <SectionHeading eyebrow="$ cat about.md" title={t('about.title')} />
+    <section id="about" className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto relative z-10">
+      <SectionHeading eyebrow="[ ABOUT ME ]" title={t('about.title')} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 sm:gap-8 items-start">
         {/* Left Column: Bio & Stats */}
-        <div className="lg:col-span-7 flex flex-col gap-8">
+        <div className="lg:col-span-7 flex flex-col gap-6">
           <div
             onMouseMove={handleTiltMove}
             onMouseLeave={handleTiltLeave}
-            className="tilt-card bg-[#121721]/90 border border-slate-800 rounded-2xl p-6 sm:p-8 backdrop-blur-md shadow-xl transition-transform duration-200"
+            className="tilt-card bg-white/90 dark:bg-[#0c1017]/90 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-7 backdrop-blur-md shadow-lg dark:shadow-xl transition-transform duration-200"
           >
-            <p className="text-base sm:text-lg text-slate-300 leading-relaxed font-sans">
+            <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed font-sans">
               {getText(data.aboutText)}
             </p>
 
             {data.location && (
-              <div className="mt-6 pt-6 border-t border-slate-800/80 flex items-center gap-2 text-sm font-mono text-slate-400">
-                <MapPin className="w-4 h-4 text-accent-coral" />
+              <div className="mt-5 pt-5 border-t border-slate-200/80 dark:border-slate-800/80 flex items-center gap-2 text-xs sm:text-sm font-mono text-slate-500 dark:text-slate-400">
+                <MapPin className="w-4 h-4 text-accent-cyan" />
                 <span>{data.location}</span>
               </div>
             )}
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-3.5 sm:gap-4">
             <div
               onMouseMove={handleTiltMove}
               onMouseLeave={handleTiltLeave}
-              className="tilt-card bg-[#121721]/90 border border-slate-800/80 rounded-xl p-5 text-center transition-all duration-200 hover:border-accent-mint/50 hover:shadow-lg hover:shadow-accent-mint/10 shadow-lg"
+              className="tilt-card bg-white/90 dark:bg-[#0c1017]/90 border border-slate-200 dark:border-slate-800/80 rounded-xl p-4 sm:p-5 text-center transition-all duration-200 hover:border-accent-cyan/50 hover:shadow-lg shadow-md"
             >
-              <div className="flex justify-center mb-2 text-accent-mint">
-                <Award className="w-6 h-6 animate-pulse" />
+              <div className="flex justify-center mb-1.5 text-accent-cyan">
+                <Award className="w-5 h-5" />
               </div>
-              <span className="block text-2xl sm:text-4xl font-extrabold font-heading text-white">
+              <span className="block text-xl sm:text-3xl font-extrabold font-heading text-slate-900 dark:text-white">
                 <AnimatedCounter target={data.yearsExperience || 3} />
               </span>
-              <span className="text-xs font-mono text-slate-400 mt-1 block">
+              <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 mt-1 block">
                 {t('about.statYears')}
               </span>
             </div>
@@ -107,15 +107,15 @@ export const AboutSection = () => {
             <div
               onMouseMove={handleTiltMove}
               onMouseLeave={handleTiltLeave}
-              className="tilt-card bg-[#121721]/90 border border-slate-800/80 rounded-xl p-5 text-center transition-all duration-200 hover:border-accent-coral/50 hover:shadow-lg hover:shadow-accent-coral/10 shadow-lg"
+              className="tilt-card bg-white/90 dark:bg-[#0c1017]/90 border border-slate-200 dark:border-slate-800/80 rounded-xl p-4 sm:p-5 text-center transition-all duration-200 hover:border-accent-violet/50 hover:shadow-lg shadow-md"
             >
-              <div className="flex justify-center mb-2 text-accent-coral">
-                <Briefcase className="w-6 h-6 animate-pulse" />
+              <div className="flex justify-center mb-1.5 text-accent-violet">
+                <Briefcase className="w-5 h-5" />
               </div>
-              <span className="block text-2xl sm:text-4xl font-extrabold font-heading text-white">
+              <span className="block text-xl sm:text-3xl font-extrabold font-heading text-slate-900 dark:text-white">
                 <AnimatedCounter target={data.projectsCompleted || 15} />
               </span>
-              <span className="text-xs font-mono text-slate-400 mt-1 block">
+              <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 mt-1 block">
                 {t('about.statProjects')}
               </span>
             </div>
@@ -123,73 +123,60 @@ export const AboutSection = () => {
             <div
               onMouseMove={handleTiltMove}
               onMouseLeave={handleTiltLeave}
-              className="tilt-card bg-[#121721]/90 border border-slate-800/80 rounded-xl p-5 text-center transition-all duration-200 hover:border-accent-amber/50 hover:shadow-lg hover:shadow-accent-amber/10 shadow-lg"
+              className="tilt-card bg-white/90 dark:bg-[#0c1017]/90 border border-slate-200 dark:border-slate-800/80 rounded-xl p-4 sm:p-5 text-center transition-all duration-200 hover:border-accent-cyan/50 hover:shadow-lg shadow-md"
             >
-              <div className="flex justify-center mb-2 text-accent-amber">
-                <Cpu className="w-6 h-6 animate-pulse" />
+              <div className="flex justify-center mb-1.5 text-accent-cyan">
+                <Cpu className="w-5 h-5" />
               </div>
-              <span className="block text-2xl sm:text-4xl font-extrabold font-heading text-white">
+              <span className="block text-xl sm:text-3xl font-extrabold font-heading text-slate-900 dark:text-white">
                 <AnimatedCounter target={data.technologiesCount || 14} />
               </span>
-              <span className="text-xs font-mono text-slate-400 mt-1 block">
+              <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 mt-1 block">
                 {t('about.statTech')}
               </span>
             </div>
           </div>
         </div>
 
-        {/* Right Column: Interactive Code Terminal Card */}
+        {/* Right Column: Clean Profile Overview Card */}
         <div className="lg:col-span-5">
           <div
             onMouseMove={handleTiltMove}
             onMouseLeave={handleTiltLeave}
-            className="tilt-card bg-[#0e121a] border border-slate-800 rounded-2xl shadow-2xl overflow-hidden transition-transform duration-200"
+            className="tilt-card bg-white dark:bg-[#090d16] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl dark:shadow-2xl overflow-hidden transition-transform duration-200"
           >
-            {/* Terminal Header */}
-            <div className="bg-[#161b24] px-4 py-3 border-b border-slate-800 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-red-500/80" />
-                <span className="w-3 h-3 rounded-full bg-amber-500/80" />
-                <span className="w-3 h-3 rounded-full bg-emerald-500/80" />
+            {/* Header */}
+            <div className="bg-slate-100 dark:bg-[#131926] px-4 py-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80" />
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
               </div>
-              <span className="text-xs font-mono text-slate-400">
-                {data.shortName?.toLowerCase() || 'barkamol'}@arch: ~
+              <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
+                profile.json — Overview
               </span>
-              <div className="w-10" />
+              <div className="w-8" />
             </div>
 
-            {/* Terminal Body */}
-            <div className="p-5 font-mono text-xs sm:text-sm text-slate-300 leading-relaxed overflow-x-auto custom-scrollbar">
-              <p className="text-slate-500">
-                <span className="text-accent-mint font-bold">┌──(</span>
-                <span className="text-accent-coral">{data.shortName?.toLowerCase() || 'barkamol'}</span>
-                <span className="text-accent-mint">㉿arch)-[~]</span>
-              </p>
-              <p className="text-slate-400 mb-2">
-                <span className="text-accent-mint font-bold">└─$</span> cat profile.json
-              </p>
-
-              <pre className="text-slate-300 bg-black/40 p-4 rounded-xl border border-slate-800/80 font-mono text-xs overflow-x-auto">
+            {/* Body */}
+            <div className="p-5 font-mono text-xs leading-relaxed overflow-x-auto custom-scrollbar">
+              <pre className="text-slate-800 dark:text-slate-300 bg-slate-100 dark:bg-black/40 p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 font-mono text-xs overflow-x-auto">
 {`{
   "name": "${data.fullName || 'Barkamol Abduraximov'}",
   "role": "${getText(data.role)}",
   "location": "${data.location || 'Uzbekistan'}",
-  "status": "available_for_hire",
-  "frontend": ["React.js", "Tailwind CSS", "JavaScript ES6+"],
-  "tools": ["Git", "Vite", "REST API", "Telegram Bot"],
-  "mentorAt": "Chust IT Serves"
+  "status": "Available for Work",
+  "stack": ["React", "Tailwind CSS", "JavaScript ES6+"],
+  "tools": ["Git", "Vite", "REST API", "Telegram API"],
+  "mentoring": "Chust IT Serves"
 }`}
               </pre>
 
-              <p className="mt-3 text-slate-500">
-                <span className="text-accent-mint font-bold">┌──(</span>
-                <span className="text-accent-coral">{data.shortName?.toLowerCase() || 'barkamol'}</span>
-                <span className="text-accent-mint">㉿arch)-[~]</span>
-              </p>
-              <p className="text-slate-400 flex items-center">
-                <span className="text-accent-mint font-bold mr-1">└─$</span>
-                <span className="w-2 h-4 bg-accent-mint animate-pulse inline-block" />
-              </p>
+              <div className="mt-4 flex items-center gap-2 text-slate-600 dark:text-slate-400 text-xs">
+                <span className="text-accent-cyan font-bold">status:</span>
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-emerald-600 dark:text-emerald-400 font-medium">Ready for hire & mentorship</span>
+              </div>
             </div>
           </div>
         </div>

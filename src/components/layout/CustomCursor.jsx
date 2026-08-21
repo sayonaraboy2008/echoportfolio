@@ -44,12 +44,12 @@ export const CustomCursor = () => {
         target.closest('.tilt-card')
       ) {
         isHovering = true;
-        ring.classList.add('border-accent-amber', 'bg-accent-amber/10');
-        ring.classList.remove('border-accent-mint/40');
+        ring.classList.add('border-accent-violet', 'bg-accent-violet/10');
+        ring.classList.remove('border-accent-cyan/40');
       } else {
         isHovering = false;
-        ring.classList.remove('border-accent-amber', 'bg-accent-amber/10');
-        ring.classList.add('border-accent-mint/40');
+        ring.classList.remove('border-accent-violet', 'bg-accent-violet/10');
+        ring.classList.add('border-accent-cyan/40');
       }
     };
 
@@ -68,12 +68,12 @@ export const CustomCursor = () => {
     <>
       <div
         ref={dotRef}
-        className="fixed top-0 left-0 w-2 h-2 rounded-full bg-accent-mint pointer-events-none z-50 shadow-[0_0_10px_#64ffda] hidden md:block"
+        className="fixed top-0 left-0 w-2 h-2 rounded-full bg-accent-cyan pointer-events-none z-50 shadow-[0_0_10px_#38bdf8] hidden md:block"
         style={{ willChange: 'transform' }}
       />
       <div
         ref={ringRef}
-        className="fixed top-0 left-0 w-8 h-8 rounded-full border border-accent-mint/40 pointer-events-none z-50 transition-[border-color,background-color] duration-200 hidden md:block shadow-[0_0_15px_rgba(100,255,218,0.15)]"
+        className="fixed top-0 left-0 w-8 h-8 rounded-full border border-accent-cyan/40 pointer-events-none z-50 transition-[border-color,background-color] duration-200 hidden md:block shadow-[0_0_15px_rgba(56,189,248,0.15)]"
         style={{ willChange: 'transform' }}
       />
     </>

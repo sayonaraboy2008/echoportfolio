@@ -1,8 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
+import { useTheme } from '../../context/ThemeContext';
 
 export const ParticleBackground = () => {
   const containerRef = useRef(null);
+  const { isDark } = useTheme();
 
   useEffect(() => {
     const container = containerRef.current;
@@ -10,7 +12,8 @@ export const ParticleBackground = () => {
 
     // Scene & Fog
     const scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0x0a0d14, 15, 60);
+    const fogColor = isDark ? 0x090d16 : 0xf8fafc;
+    scene.fog = new THREE.Fog(fogColor, 15, 60);
 
     // Camera
     const camera = new THREE.PerspectiveCamera(
@@ -34,10 +37,10 @@ export const ParticleBackground = () => {
     const basePositions = new Float32Array(posAttr.array);
 
     const gridMaterial = new THREE.MeshBasicMaterial({
-      color: 0x64ffda,
+      color: isDark ? 0x38bdf8 : 0x0284c7,
       wireframe: true,
       transparent: true,
-      opacity: 0.18,
+      opacity: isDark ? 0.16 : 0.1,
     });
 
     const grid = new THREE.Mesh(planeGeo, gridMaterial);
@@ -47,17 +50,23 @@ export const ParticleBackground = () => {
     scene.add(grid);
 
     // 2. Starfield Glowing Particles
-    const starCount = 220;
+    const starCount = 200;
     const starGeo = new THREE.BufferGeometry();
     const starPositions = new Float32Array(starCount * 3);
     const starColors = new Float32Array(starCount * 3);
 
-    const palette = [
-      new THREE.Color(0x64ffda), // mint
-      new THREE.Color(0xffb454), // amber
-      new THREE.Color(0xff8383), // coral
-      new THREE.Color(0x58a6ff), // blue
-    ];
+    const palette = isDark
+      ? [
+          new THREE.Color(0x38bdf8), // cyan
+          new THREE.Color(0x818cf8), // violet
+          new THREE.Color(0x64ffda), // mint
+          new THREE.Color(0x60a5fa), // blue
+        ]
+      : [
+          new THREE.Color(0x0284c7), // dark cyan
+          new THREE.Color(0x4f46e5), // indigo
+          new THREE.Color(0x059669), // emerald
+        ];
 
     for (let i = 0; i < starCount; i++) {
       starPositions[i * 3] = (Math.random() - 0.5) * 85;
@@ -77,7 +86,7 @@ export const ParticleBackground = () => {
       size: 0.18,
       vertexColors: true,
       transparent: true,
-      opacity: 0.75,
+      opacity: isDark ? 0.75 : 0.45,
     });
 
     const stars = new THREE.Points(starGeo, starMaterial);
@@ -149,7 +158,7 @@ export const ParticleBackground = () => {
       starMaterial.dispose();
       renderer.dispose();
     };
-  }, []);
+  }, [isDark]);
 
   return (
     <div

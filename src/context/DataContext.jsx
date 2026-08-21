@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import defaultPortfolioData from '../../public/data/portfolio.json';
+import defaultPortfolioData from '../data/portfolio.json';
 
 export const MOKKY_ENDPOINT = 'https://2e531a260b0c7ba6.mokky.dev/all';
 const STORAGE_KEY = 'portfolio_mokky_cache_v3';
@@ -96,6 +96,162 @@ export const DataProvider = ({ children }) => {
     setIsLoading(false);
     return false;
   }, [addToast]);
+
+  const [analytics, setAnalytics] = useState(() => {
+    try {
+      const cached = localStorage.getItem('portfolio_analytics_v1');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        // Force reset old demo 1400+ value if present in user's browser cache
+        if (parsed && parsed.totalVisitors > 500) {
+          localStorage.removeItem('portfolio_analytics_v1');
+        } else if (parsed) {
+          return parsed;
+        }
+      }
+    } catch (e) {}
+    return {
+      totalVisitors: 0,
+      uniqueSessions: 0,
+      visitedIPs: [],
+      sectionViews: {
+        hero: 0,
+        about: 0,
+        skills: 0,
+        projects: 0,
+        experience: 0,
+        terminal: 0,
+        contact: 0,
+      },
+      projectClicks: {},
+      recentLogs: [],
+    };
+  });
+
+  // Track unique visitor IP address on startup
+  useEffect(() => {
+    const trackVisitorIP = async () => {
+      try {
+        const sessionKey = 'portfolio_ip_tracked_session';
+        const isSessionLogged = sessionStorage.getItem(sessionKey);
+
+        let userIp = '127.0.0.1';
+        try {
+          const res = await fetch('https://api.ipify.org?format=json');
+          if (res.ok) {
+            const ipData = await res.json();
+            if (ipData && ipData.ip) userIp = ipData.ip;
+          }
+        } catch (e) {
+          console.warn('IP fetch fallback:', e);
+        }
+
+        setAnalytics((prev) => {
+          // If totalVisitors was cached at > 500 from old demo data, reset it to 0
+          const currentTotal = (prev && prev.totalVisitors > 500) ? 0 : (prev?.totalVisitors || 0);
+          const currentIPs = Array.isArray(prev?.visitedIPs) ? prev.visitedIPs : [];
+
+          const isNewIP = !currentIPs.includes(userIp);
+          const updatedIPs = isNewIP ? [...currentIPs, userIp] : currentIPs;
+          
+          let newTotal = currentTotal;
+          if (isNewIP) {
+            newTotal = currentTotal + 1;
+          } else if (currentTotal === 0) {
+            newTotal = 1;
+          }
+
+          if (!isSessionLogged) {
+            sessionStorage.setItem(sessionKey, 'true');
+          }
+
+          const updated = {
+            ...prev,
+            totalVisitors: newTotal,
+            uniqueSessions: (prev?.uniqueSessions || 0) + (isNewIP ? 1 : 0),
+            visitedIPs: updatedIPs,
+            recentLogs: [
+              {
+                id: `log-${Date.now()}`,
+                timestamp: new Date().toLocaleTimeString(),
+                action: isNewIP ? `Yangi IP tashrif: ${userIp}` : `Qayta tashrif: ${userIp}`,
+                detail: navigator.userAgent.includes('Mobile') ? 'Mobile Device' : 'Desktop Device',
+              },
+              ...(prev?.recentLogs || []).slice(0, 49),
+            ],
+          };
+
+          localStorage.setItem('portfolio_analytics_v1', JSON.stringify(updated));
+          return updated;
+        });
+      } catch (err) {
+        console.warn('IP tracking error:', err);
+      }
+    };
+
+    trackVisitorIP();
+  }, []);
+
+  const trackAction = useCallback((actionName, detail = '') => {
+    setAnalytics((prev) => {
+      const updated = {
+        ...prev,
+        recentLogs: [
+          {
+            id: `log-${Date.now()}-${Math.random().toString().slice(2, 6)}`,
+            timestamp: new Date().toLocaleTimeString(),
+            action: actionName,
+            detail: detail,
+          },
+          ...(prev.recentLogs || []).slice(0, 49),
+        ],
+      };
+      localStorage.setItem('portfolio_analytics_v1', JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
+  const trackSectionView = useCallback((sectionId) => {
+    const key = (sectionId || '').toLowerCase();
+    if (!key) return;
+    setAnalytics((prev) => {
+      const currentViews = prev.sectionViews || {};
+      const updated = {
+        ...prev,
+        sectionViews: {
+          ...currentViews,
+          [key]: (currentViews[key] || 0) + 1,
+        },
+      };
+      localStorage.setItem('portfolio_analytics_v1', JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
+  const trackProjectClick = useCallback((projectTitle) => {
+    if (!projectTitle) return;
+    setAnalytics((prev) => {
+      const currentClicks = prev.projectClicks || {};
+      const updated = {
+        ...prev,
+        projectClicks: {
+          ...currentClicks,
+          [projectTitle]: (currentClicks[projectTitle] || 0) + 1,
+        },
+        recentLogs: [
+          {
+            id: `log-${Date.now()}`,
+            timestamp: new Date().toLocaleTimeString(),
+            action: `Loyiha ko'rildi: "${projectTitle}"`,
+            detail: 'Projects Section Click',
+          },
+          ...(prev.recentLogs || []).slice(0, 49),
+        ],
+      };
+      localStorage.setItem('portfolio_analytics_v1', JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
 
   // Initial load on startup
   useEffect(() => {
@@ -311,6 +467,10 @@ export const DataProvider = ({ children }) => {
         toasts,
         addToast,
         removeToast,
+        analytics,
+        trackAction,
+        trackSectionView,
+        trackProjectClick,
       }}
     >
       {children}
