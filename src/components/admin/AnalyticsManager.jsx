@@ -479,9 +479,15 @@ export const AnalyticsManager = () => {
                             🔄 Qayta Kirish
                           </span>
                         )}
+                        {log.ip && (
+                          <span className="px-2 py-0.5 rounded-full bg-accent-cyan/10 text-accent-cyan border border-accent-cyan/20 text-[10px] font-bold">
+                            📍 IP: {log.ip}
+                          </span>
+                        )}
                       </div>
 
                       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-400 mt-1">
+                        {log.deviceName && <span className="text-slate-300 font-semibold">{log.deviceName}</span>}
                         {log.detail && <span>{log.detail}</span>}
                         {log.visitorId && <span className="text-slate-500">ID: {log.visitorId.slice(0, 14)}...</span>}
                       </div>

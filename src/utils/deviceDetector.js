@@ -1,8 +1,8 @@
 /**
- * Device & Browser Detector Utility for Analytics
+ * Enhanced Device & Browser Detector Utility for Analytics
  */
 
-// Generate a random UUID string for visitor tracking
+// Generate a persistent UUID string for visitor tracking
 const generateVisitorId = () => {
   return `vis_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 };
@@ -11,7 +11,7 @@ const generateVisitorId = () => {
  * Get or initialize persistent Visitor ID from localStorage
  */
 export const getVisitorInfo = () => {
-  const STORAGE_KEY = 'portfolio_visitor_id_v2';
+  const STORAGE_KEY = 'portfolio_visitor_id_v3';
   let visitorId = localStorage.getItem(STORAGE_KEY);
   let isFirstVisit = false;
 
@@ -41,6 +41,23 @@ export const detectDeviceType = () => {
     return 'Mobile';
   }
   return 'Desktop';
+};
+
+/**
+ * Detect Specific Device Name (iPhone, Samsung/Android, Windows PC, Mac, iPad, etc.)
+ */
+export const detectDeviceName = () => {
+  const ua = navigator.userAgent || '';
+  if (/iPhone/.test(ua)) return 'Apple iPhone';
+  if (/iPad/.test(ua)) return 'Apple iPad';
+  if (/Android/.test(ua)) {
+    if (/Mobile/.test(ua)) return 'Android Smartphone';
+    return 'Android Tablet';
+  }
+  if (/Macintosh|MacIntel|MacPPC|Mac68K/.test(ua)) return 'Mac / macOS';
+  if (/Windows/.test(ua)) return 'Windows PC';
+  if (/Linux/.test(ua)) return 'Linux PC';
+  return 'Boshqa Qurilma';
 };
 
 /**
@@ -96,21 +113,47 @@ export const detectBrowser = () => {
 };
 
 /**
+ * Fetch Public IP Address asynchronously
+ */
+export const fetchUserIP = async () => {
+  try {
+    const res = await fetch('https://api.ipify.org?format=json');
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.ip) return data.ip;
+    }
+  } catch (e) {
+    try {
+      const res2 = await fetch('https://api.db-ip.com/v2/free/self');
+      if (res2.ok) {
+        const data2 = await res2.json();
+        if (data2 && data2.ipAddress) return data2.ipAddress;
+      }
+    } catch (e2) {}
+  }
+  return 'Anonim IP (yashirin)';
+};
+
+/**
  * Get complete client snapshot metadata
  */
-export const getClientMetadata = () => {
+export const getClientMetadata = async () => {
   const { visitorId, isFirstVisit } = getVisitorInfo();
   const deviceType = detectDeviceType();
+  const deviceName = detectDeviceName();
   const os = detectOS();
   const browser = detectBrowser();
   const screenResolution = `${window.screen.width || 0}x${window.screen.height || 0}`;
+  const ip = await fetchUserIP();
 
   return {
     visitorId,
     isFirstVisit,
     deviceType,
+    deviceName,
     os,
     browser,
     screenResolution,
+    ip,
   };
 };

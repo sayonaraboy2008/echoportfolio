@@ -113,12 +113,7 @@ export const DataProvider = ({ children }) => {
 
         // Sync remote analytics
         if (targetItem.analytics && typeof targetItem.analytics === 'object') {
-          setAnalytics((prev) => {
-            const merged = { ...defaultAnalytics, ...prev, ...targetItem.analytics };
-            return recordVisitEvent(merged, targetItem.id);
-          });
-        } else {
-          setAnalytics((prev) => recordVisitEvent(prev, targetItem.id));
+          setAnalytics(targetItem.analytics);
         }
 
         if (showNotification) {
@@ -147,7 +142,7 @@ export const DataProvider = ({ children }) => {
 
   const [analytics, setAnalytics] = useState(() => {
     try {
-      const cached = localStorage.getItem('portfolio_analytics_v3');
+      const cached = localStorage.getItem('portfolio_analytics_v4');
       if (cached) {
         const parsed = JSON.parse(cached);
         if (parsed && typeof parsed === 'object') {
@@ -158,80 +153,122 @@ export const DataProvider = ({ children }) => {
     return defaultAnalytics;
   });
 
-  // Record visitor event with device metadata
-  const recordVisitEvent = (baseAnalytics, targetId = null) => {
-    const sessionKey = 'portfolio_session_tracked_v3';
-    const isSessionLogged = sessionStorage.getItem(sessionKey);
+  // Record visitor event with IP, device name, and remote sync
+  const recordVisitEvent = useCallback(async (baseAnalytics = null, targetId = null) => {
+    try {
+      const sessionKey = 'portfolio_visit_session_logged_v4';
+      const isSessionLogged = sessionStorage.getItem(sessionKey);
 
-    const client = getClientMetadata();
-    const visitedUUIDs = Array.isArray(baseAnalytics?.visitedUUIDs) ? baseAnalytics.visitedUUIDs : [];
-    const isNewUUID = client.isFirstVisit || !visitedUUIDs.includes(client.visitorId);
+      // Extract client specs + IP address
+      const client = await getClientMetadata();
 
-    // If session is already logged in this tab, skip incrementing unless base was empty
-    if (isSessionLogged && (baseAnalytics?.totalVisitors || 0) > 0) {
-      return baseAnalytics;
-    }
+      // Fetch latest item from Mokky server to ensure global count is synchronized across all devices
+      let remoteItem = null;
+      let recId = targetId || recordId || localStorage.getItem('portfolio_mokky_record_id');
 
-    sessionStorage.setItem(sessionKey, 'true');
+      try {
+        const res = await fetch(MOKKY_ENDPOINT, { cache: 'no-store' });
+        if (res.ok) {
+          const json = await res.json();
+          if (Array.isArray(json) && json.length > 0) {
+            remoteItem = json[json.length - 1];
+            if (remoteItem && remoteItem.id) {
+              recId = remoteItem.id;
+              setRecordId(remoteItem.id);
+              localStorage.setItem('portfolio_mokky_record_id', String(remoteItem.id));
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Failed to fetch latest Mokky item:', e);
+      }
 
-    const updatedUUIDs = isNewUUID ? [...visitedUUIDs, client.visitorId] : visitedUUIDs;
+      const activeAnalytics = remoteItem?.analytics || baseAnalytics || defaultAnalytics;
 
-    const devices = { ...defaultAnalytics.devices, ...(baseAnalytics?.devices || {}) };
-    devices[client.deviceType] = (devices[client.deviceType] || 0) + 1;
+      // Check if session was already logged in this browser tab
+      if (isSessionLogged && (activeAnalytics?.totalVisitors || 0) > 0) {
+        setAnalytics(activeAnalytics);
+        return activeAnalytics;
+      }
 
-    const osMap = { ...defaultAnalytics.os, ...(baseAnalytics?.os || {}) };
-    osMap[client.os] = (osMap[client.os] || 0) + 1;
+      sessionStorage.setItem(sessionKey, 'true');
 
-    const browserMap = { ...defaultAnalytics.browsers, ...(baseAnalytics?.browsers || {}) };
-    browserMap[client.browser] = (browserMap[client.browser] || 0) + 1;
+      const visitedUUIDs = Array.isArray(activeAnalytics?.visitedUUIDs) ? activeAnalytics.visitedUUIDs : [];
+      const isNewUUID = client.isFirstVisit || !visitedUUIDs.includes(client.visitorId);
 
-    const logEntry = {
-      id: `log-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-      timestamp: new Date().toLocaleString('uz-UZ', {
+      const updatedUUIDs = isNewUUID ? [...visitedUUIDs, client.visitorId] : visitedUUIDs;
+
+      const devices = { ...defaultAnalytics.devices, ...(activeAnalytics?.devices || {}) };
+      devices[client.deviceType] = (devices[client.deviceType] || 0) + 1;
+
+      const osMap = { ...defaultAnalytics.os, ...(activeAnalytics?.os || {}) };
+      osMap[client.os] = (osMap[client.os] || 0) + 1;
+
+      const browserMap = { ...defaultAnalytics.browsers, ...(activeAnalytics?.browsers || {}) };
+      browserMap[client.browser] = (browserMap[client.browser] || 0) + 1;
+
+      const now = new Date();
+      const formattedTime = now.toLocaleString('uz-UZ', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
-      }),
-      visitorId: client.visitorId,
-      isFirstVisit: isNewUUID,
-      deviceType: client.deviceType,
-      os: client.os,
-      browser: client.browser,
-      screenResolution: client.screenResolution,
-      action: isNewUUID
-        ? `✨ Ilk Tashrif (${client.deviceType} / ${client.os} / ${client.browser})`
-        : `🔄 Qayta Tashrif (${client.deviceType} / ${client.os} / ${client.browser})`,
-      detail: `Ekran: ${client.screenResolution} | ${client.browser} (${client.os})`,
-    };
+        second: '2-digit',
+      });
 
-    const updated = {
-      ...defaultAnalytics,
-      ...baseAnalytics,
-      totalVisitors: (baseAnalytics?.totalVisitors || 0) + 1,
-      uniqueVisitors: (baseAnalytics?.uniqueVisitors || 0) + (isNewUUID ? 1 : 0),
-      firstVisits: (baseAnalytics?.firstVisits || 0) + (isNewUUID ? 1 : 0),
-      repeatVisits: (baseAnalytics?.repeatVisits || 0) + (isNewUUID ? 0 : 1),
-      visitedUUIDs: updatedUUIDs,
-      devices,
-      os: osMap,
-      browsers: browserMap,
-      recentLogs: [logEntry, ...(baseAnalytics?.recentLogs || []).slice(0, 99)],
-    };
+      const logEntry = {
+        id: `log-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        timestamp: formattedTime,
+        visitorId: client.visitorId,
+        isFirstVisit: isNewUUID,
+        deviceType: client.deviceType,
+        deviceName: client.deviceName,
+        os: client.os,
+        browser: client.browser,
+        screenResolution: client.screenResolution,
+        ip: client.ip,
+        action: isNewUUID
+          ? `✨ Ilk Tashrif: ${client.deviceName}`
+          : `🔄 Tashrif: ${client.deviceName}`,
+        detail: `${client.deviceName} | IP: ${client.ip} | ${client.browser} (${client.os}) | Ekran: ${client.screenResolution}`,
+      };
 
-    localStorage.setItem('portfolio_analytics_v3', JSON.stringify(updated));
-    patchAnalyticsToRemote(updated, targetId);
-    return updated;
-  };
+      const updated = {
+        ...defaultAnalytics,
+        ...activeAnalytics,
+        totalVisitors: (activeAnalytics?.totalVisitors || 0) + 1,
+        uniqueVisitors: (activeAnalytics?.uniqueVisitors || 0) + (isNewUUID ? 1 : 0),
+        firstVisits: (activeAnalytics?.firstVisits || 0) + (isNewUUID ? 1 : 0),
+        repeatVisits: (activeAnalytics?.repeatVisits || 0) + (isNewUUID ? 0 : 1),
+        visitedUUIDs: updatedUUIDs,
+        devices,
+        os: osMap,
+        browsers: browserMap,
+        recentLogs: [logEntry, ...(activeAnalytics?.recentLogs || []).slice(0, 99)],
+      };
 
-  // Track initial visit on mount if not already triggered by fetchFromMokky
+      setAnalytics(updated);
+      localStorage.setItem('portfolio_analytics_v4', JSON.stringify(updated));
+
+      // Push to remote Mokky database!
+      if (recId) {
+        await patchAnalyticsToRemote(updated, recId);
+      }
+
+      return updated;
+    } catch (err) {
+      console.error('Visit tracking execution error:', err);
+    }
+  }, [recordId]);
+
+  // Track visit on mount
   useEffect(() => {
-    setAnalytics((prev) => recordVisitEvent(prev));
-  }, []);
+    recordVisitEvent();
+  }, [recordVisitEvent]);
 
-  const trackAction = useCallback((actionName, detail = '') => {
-    const client = getClientMetadata();
+  const trackAction = useCallback(async (actionName, detail = '') => {
+    const client = await getClientMetadata();
     setAnalytics((prev) => {
       const updated = {
         ...prev,
@@ -241,15 +278,17 @@ export const DataProvider = ({ children }) => {
             timestamp: new Date().toLocaleString('uz-UZ'),
             visitorId: client.visitorId,
             deviceType: client.deviceType,
+            deviceName: client.deviceName,
             os: client.os,
             browser: client.browser,
+            ip: client.ip,
             action: actionName,
-            detail: detail || `${client.deviceType} (${client.os})`,
+            detail: detail || `${client.deviceName} (${client.ip})`,
           },
           ...(prev.recentLogs || []).slice(0, 99),
         ],
       };
-      localStorage.setItem('portfolio_analytics_v3', JSON.stringify(updated));
+      localStorage.setItem('portfolio_analytics_v4', JSON.stringify(updated));
       patchAnalyticsToRemote(updated);
       return updated;
     });
