@@ -1,8 +1,45 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import defaultPortfolioData from '../data/portfolio.json';
+import { getClientMetadata } from '../utils/deviceDetector';
 
 export const MOKKY_ENDPOINT = 'https://2e531a260b0c7ba6.mokky.dev/all';
 const STORAGE_KEY = 'portfolio_mokky_cache_v3';
+
+const defaultAnalytics = {
+  totalVisitors: 0,
+  uniqueVisitors: 0,
+  firstVisits: 0,
+  repeatVisits: 0,
+  devices: { Mobile: 0, Desktop: 0, Tablet: 0 },
+  os: { iOS: 0, Android: 0, Windows: 0, macOS: 0, Linux: 0, 'Boshqa OS': 0 },
+  browsers: { Chrome: 0, Safari: 0, 'Telegram App': 0, Firefox: 0, Edge: 0, Opera: 0, 'Boshqa Brauzer': 0 },
+  sectionViews: {
+    hero: 0,
+    about: 0,
+    skills: 0,
+    projects: 0,
+    experience: 0,
+    terminal: 0,
+    contact: 0,
+  },
+  projectClicks: {},
+  recentLogs: [],
+  visitedUUIDs: [],
+};
+
+const patchAnalyticsToRemote = async (updatedAnalytics, targetId = null) => {
+  try {
+    const recId = targetId || localStorage.getItem('portfolio_mokky_record_id');
+    if (!recId) return;
+    await fetch(`${MOKKY_ENDPOINT}/${recId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ analytics: updatedAnalytics }),
+    });
+  } catch (err) {
+    console.warn('Failed to patch analytics to remote Mokky database:', err);
+  }
+};
 
 const DataContext = createContext();
 
@@ -73,6 +110,17 @@ export const DataProvider = ({ children }) => {
         }
         localStorage.setItem(STORAGE_KEY, JSON.stringify(targetItem));
         setLastSyncTime(new Date().toLocaleTimeString());
+
+        // Sync remote analytics
+        if (targetItem.analytics && typeof targetItem.analytics === 'object') {
+          setAnalytics((prev) => {
+            const merged = { ...defaultAnalytics, ...prev, ...targetItem.analytics };
+            return recordVisitEvent(merged, targetItem.id);
+          });
+        } else {
+          setAnalytics((prev) => recordVisitEvent(prev, targetItem.id));
+        }
+
         if (showNotification) {
           addToast('Ma\'lumotlar mokky.dev dan muvaffaqiyatli yuklandi!', 'success');
         }
@@ -99,114 +147,110 @@ export const DataProvider = ({ children }) => {
 
   const [analytics, setAnalytics] = useState(() => {
     try {
-      const cached = localStorage.getItem('portfolio_analytics_v1');
+      const cached = localStorage.getItem('portfolio_analytics_v3');
       if (cached) {
         const parsed = JSON.parse(cached);
-        // Force reset old demo 1400+ value if present in user's browser cache
-        if (parsed && parsed.totalVisitors > 500) {
-          localStorage.removeItem('portfolio_analytics_v1');
-        } else if (parsed) {
-          return parsed;
+        if (parsed && typeof parsed === 'object') {
+          return { ...defaultAnalytics, ...parsed };
         }
       }
     } catch (e) {}
-    return {
-      totalVisitors: 0,
-      uniqueSessions: 0,
-      visitedIPs: [],
-      sectionViews: {
-        hero: 0,
-        about: 0,
-        skills: 0,
-        projects: 0,
-        experience: 0,
-        terminal: 0,
-        contact: 0,
-      },
-      projectClicks: {},
-      recentLogs: [],
-    };
+    return defaultAnalytics;
   });
 
-  // Track unique visitor IP address on startup
-  useEffect(() => {
-    const trackVisitorIP = async () => {
-      try {
-        const sessionKey = 'portfolio_ip_tracked_session';
-        const isSessionLogged = sessionStorage.getItem(sessionKey);
+  // Record visitor event with device metadata
+  const recordVisitEvent = (baseAnalytics, targetId = null) => {
+    const sessionKey = 'portfolio_session_tracked_v3';
+    const isSessionLogged = sessionStorage.getItem(sessionKey);
 
-        let userIp = '127.0.0.1';
-        try {
-          const res = await fetch('https://api.ipify.org?format=json');
-          if (res.ok) {
-            const ipData = await res.json();
-            if (ipData && ipData.ip) userIp = ipData.ip;
-          }
-        } catch (e) {
-          console.warn('IP fetch fallback:', e);
-        }
+    const client = getClientMetadata();
+    const visitedUUIDs = Array.isArray(baseAnalytics?.visitedUUIDs) ? baseAnalytics.visitedUUIDs : [];
+    const isNewUUID = client.isFirstVisit || !visitedUUIDs.includes(client.visitorId);
 
-        setAnalytics((prev) => {
-          // If totalVisitors was cached at > 500 from old demo data, reset it to 0
-          const currentTotal = (prev && prev.totalVisitors > 500) ? 0 : (prev?.totalVisitors || 0);
-          const currentIPs = Array.isArray(prev?.visitedIPs) ? prev.visitedIPs : [];
+    // If session is already logged in this tab, skip incrementing unless base was empty
+    if (isSessionLogged && (baseAnalytics?.totalVisitors || 0) > 0) {
+      return baseAnalytics;
+    }
 
-          const isNewIP = !currentIPs.includes(userIp);
-          const updatedIPs = isNewIP ? [...currentIPs, userIp] : currentIPs;
-          
-          let newTotal = currentTotal;
-          if (isNewIP) {
-            newTotal = currentTotal + 1;
-          } else if (currentTotal === 0) {
-            newTotal = 1;
-          }
+    sessionStorage.setItem(sessionKey, 'true');
 
-          if (!isSessionLogged) {
-            sessionStorage.setItem(sessionKey, 'true');
-          }
+    const updatedUUIDs = isNewUUID ? [...visitedUUIDs, client.visitorId] : visitedUUIDs;
 
-          const updated = {
-            ...prev,
-            totalVisitors: newTotal,
-            uniqueSessions: (prev?.uniqueSessions || 0) + (isNewIP ? 1 : 0),
-            visitedIPs: updatedIPs,
-            recentLogs: [
-              {
-                id: `log-${Date.now()}`,
-                timestamp: new Date().toLocaleTimeString(),
-                action: isNewIP ? `Yangi IP tashrif: ${userIp}` : `Qayta tashrif: ${userIp}`,
-                detail: navigator.userAgent.includes('Mobile') ? 'Mobile Device' : 'Desktop Device',
-              },
-              ...(prev?.recentLogs || []).slice(0, 49),
-            ],
-          };
+    const devices = { ...defaultAnalytics.devices, ...(baseAnalytics?.devices || {}) };
+    devices[client.deviceType] = (devices[client.deviceType] || 0) + 1;
 
-          localStorage.setItem('portfolio_analytics_v1', JSON.stringify(updated));
-          return updated;
-        });
-      } catch (err) {
-        console.warn('IP tracking error:', err);
-      }
+    const osMap = { ...defaultAnalytics.os, ...(baseAnalytics?.os || {}) };
+    osMap[client.os] = (osMap[client.os] || 0) + 1;
+
+    const browserMap = { ...defaultAnalytics.browsers, ...(baseAnalytics?.browsers || {}) };
+    browserMap[client.browser] = (browserMap[client.browser] || 0) + 1;
+
+    const logEntry = {
+      id: `log-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      timestamp: new Date().toLocaleString('uz-UZ', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      visitorId: client.visitorId,
+      isFirstVisit: isNewUUID,
+      deviceType: client.deviceType,
+      os: client.os,
+      browser: client.browser,
+      screenResolution: client.screenResolution,
+      action: isNewUUID
+        ? `✨ Ilk Tashrif (${client.deviceType} / ${client.os} / ${client.browser})`
+        : `🔄 Qayta Tashrif (${client.deviceType} / ${client.os} / ${client.browser})`,
+      detail: `Ekran: ${client.screenResolution} | ${client.browser} (${client.os})`,
     };
 
-    trackVisitorIP();
+    const updated = {
+      ...defaultAnalytics,
+      ...baseAnalytics,
+      totalVisitors: (baseAnalytics?.totalVisitors || 0) + 1,
+      uniqueVisitors: (baseAnalytics?.uniqueVisitors || 0) + (isNewUUID ? 1 : 0),
+      firstVisits: (baseAnalytics?.firstVisits || 0) + (isNewUUID ? 1 : 0),
+      repeatVisits: (baseAnalytics?.repeatVisits || 0) + (isNewUUID ? 0 : 1),
+      visitedUUIDs: updatedUUIDs,
+      devices,
+      os: osMap,
+      browsers: browserMap,
+      recentLogs: [logEntry, ...(baseAnalytics?.recentLogs || []).slice(0, 99)],
+    };
+
+    localStorage.setItem('portfolio_analytics_v3', JSON.stringify(updated));
+    patchAnalyticsToRemote(updated, targetId);
+    return updated;
+  };
+
+  // Track initial visit on mount if not already triggered by fetchFromMokky
+  useEffect(() => {
+    setAnalytics((prev) => recordVisitEvent(prev));
   }, []);
 
   const trackAction = useCallback((actionName, detail = '') => {
+    const client = getClientMetadata();
     setAnalytics((prev) => {
       const updated = {
         ...prev,
         recentLogs: [
           {
-            id: `log-${Date.now()}-${Math.random().toString().slice(2, 6)}`,
-            timestamp: new Date().toLocaleTimeString(),
+            id: `log-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+            timestamp: new Date().toLocaleString('uz-UZ'),
+            visitorId: client.visitorId,
+            deviceType: client.deviceType,
+            os: client.os,
+            browser: client.browser,
             action: actionName,
-            detail: detail,
+            detail: detail || `${client.deviceType} (${client.os})`,
           },
-          ...(prev.recentLogs || []).slice(0, 49),
+          ...(prev.recentLogs || []).slice(0, 99),
         ],
       };
-      localStorage.setItem('portfolio_analytics_v1', JSON.stringify(updated));
+      localStorage.setItem('portfolio_analytics_v3', JSON.stringify(updated));
+      patchAnalyticsToRemote(updated);
       return updated;
     });
   }, []);
@@ -223,13 +267,15 @@ export const DataProvider = ({ children }) => {
           [key]: (currentViews[key] || 0) + 1,
         },
       };
-      localStorage.setItem('portfolio_analytics_v1', JSON.stringify(updated));
+      localStorage.setItem('portfolio_analytics_v3', JSON.stringify(updated));
+      patchAnalyticsToRemote(updated);
       return updated;
     });
   }, []);
 
   const trackProjectClick = useCallback((projectTitle) => {
     if (!projectTitle) return;
+    const client = getClientMetadata();
     setAnalytics((prev) => {
       const currentClicks = prev.projectClicks || {};
       const updated = {
@@ -240,18 +286,33 @@ export const DataProvider = ({ children }) => {
         },
         recentLogs: [
           {
-            id: `log-${Date.now()}`,
-            timestamp: new Date().toLocaleTimeString(),
-            action: `Loyiha ko'rildi: "${projectTitle}"`,
-            detail: 'Projects Section Click',
+            id: `log-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+            timestamp: new Date().toLocaleString('uz-UZ'),
+            visitorId: client.visitorId,
+            deviceType: client.deviceType,
+            os: client.os,
+            browser: client.browser,
+            action: `🚀 Loyiha ko'rildi: "${projectTitle}"`,
+            detail: `Projects Section | ${client.deviceType} (${client.os})`,
           },
-          ...(prev.recentLogs || []).slice(0, 49),
+          ...(prev.recentLogs || []).slice(0, 99),
         ],
       };
-      localStorage.setItem('portfolio_analytics_v1', JSON.stringify(updated));
+      localStorage.setItem('portfolio_analytics_v3', JSON.stringify(updated));
+      patchAnalyticsToRemote(updated);
       return updated;
     });
   }, []);
+
+  const resetAnalytics = useCallback(async () => {
+    const resetData = {
+      ...defaultAnalytics,
+    };
+    setAnalytics(resetData);
+    localStorage.setItem('portfolio_analytics_v3', JSON.stringify(resetData));
+    await patchAnalyticsToRemote(resetData);
+    addToast('Statistika va loglar tozalandi!', 'success');
+  }, [addToast]);
 
   // Initial load on startup
   useEffect(() => {
@@ -471,6 +532,7 @@ export const DataProvider = ({ children }) => {
         trackAction,
         trackSectionView,
         trackProjectClick,
+        resetAnalytics,
       }}
     >
       {children}

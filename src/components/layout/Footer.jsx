@@ -31,13 +31,16 @@ export const Footer = () => {
             <span>React.js + Vite</span>
           </div>
 
-          <div className="flex items-center gap-2 text-xs font-mono text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-[#0c1017] px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 shadow-sm" title="Live Visitor Count">
+          <div
+            className="flex items-center gap-2 text-xs font-mono text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-[#0c1017] px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 shadow-sm"
+            title={`Jami Tashriflar: ${totalViews} | Unikal Qurilmalar: ${analytics?.uniqueVisitors || 0}`}
+          >
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
             </span>
             <Users className="w-3.5 h-3.5 text-emerald-500" />
-            <span>Views: <strong className="text-slate-900 dark:text-white font-bold">{totalViews}</strong></span>
+            <span>Tashriflar: <strong className="text-slate-900 dark:text-white font-bold">{totalViews}</strong></span>
           </div>
         </div>
 
