@@ -7,9 +7,9 @@ export const ThemeProvider = ({ children }) => {
     try {
       const saved = localStorage.getItem('portfolio_theme');
       if (saved === 'light' || saved === 'dark') return saved;
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'dark';
+      return 'light';
     } catch (e) {
-      return 'dark';
+      return 'light';
     }
   });
 

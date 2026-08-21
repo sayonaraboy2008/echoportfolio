@@ -4,6 +4,7 @@ import { LanguageProvider } from './context/LanguageContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
+import { PageLoader } from './components/layout/PageLoader';
 import { CustomCursor } from './components/layout/CustomCursor';
 import { BackgroundGlows } from './components/layout/BackgroundGlows';
 import { ParticleBackground } from './components/home/ParticleBackground';
@@ -103,6 +104,9 @@ export default function App() {
     <ThemeProvider>
       <DataProvider>
         <LanguageProvider>
+          {/* Full Page Initial / Refresh Loading Animation */}
+          <PageLoader />
+
           <div className="relative min-h-screen bg-[#f8fafc] dark:bg-[#05070c] text-slate-800 dark:text-slate-200 selection:bg-accent-cyan/30 selection:text-white font-sans antialiased overflow-hidden transition-colors duration-300">
             {/* Automatic Visitor Section Observer */}
             <SectionTracker />
