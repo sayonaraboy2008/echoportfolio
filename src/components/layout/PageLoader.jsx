@@ -12,17 +12,19 @@ export const PageLoader = () => {
   const [shouldRender, setShouldRender] = useState(true);
 
   useEffect(() => {
-    // Ultra-fast progress transition (total ~350ms intro, 200ms fadeout)
-    const t1 = setTimeout(() => setProgress(70), 60);
-    const t2 = setTimeout(() => setProgress(100), 180);
-    const t3 = setTimeout(() => setIsDone(true), 300);
-    const t4 = setTimeout(() => setShouldRender(false), 550);
+    // Balanced smooth loading timing (~0.8s animation + 0.4s fadeout)
+    const t1 = setTimeout(() => setProgress(55), 200);
+    const t2 = setTimeout(() => setProgress(88), 450);
+    const t3 = setTimeout(() => setProgress(100), 750);
+    const t4 = setTimeout(() => setIsDone(true), 950);
+    const t5 = setTimeout(() => setShouldRender(false), 1400);
 
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
       clearTimeout(t3);
       clearTimeout(t4);
+      clearTimeout(t5);
     };
   }, []);
 
