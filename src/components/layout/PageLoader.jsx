@@ -12,12 +12,13 @@ export const PageLoader = () => {
   const [shouldRender, setShouldRender] = useState(true);
 
   useEffect(() => {
-    // Balanced smooth loading timing (~0.8s animation + 0.4s fadeout)
-    const t1 = setTimeout(() => setProgress(55), 200);
-    const t2 = setTimeout(() => setProgress(88), 450);
-    const t3 = setTimeout(() => setProgress(100), 750);
-    const t4 = setTimeout(() => setIsDone(true), 950);
-    const t5 = setTimeout(() => setShouldRender(false), 1400);
+    // Extended smooth loading duration (+2 seconds as requested)
+    const t1 = setTimeout(() => setProgress(35), 400);
+    const t2 = setTimeout(() => setProgress(60), 1000);
+    const t3 = setTimeout(() => setProgress(85), 1800);
+    const t4 = setTimeout(() => setProgress(100), 2600);
+    const t5 = setTimeout(() => setIsDone(true), 2950);
+    const t6 = setTimeout(() => setShouldRender(false), 3500);
 
     return () => {
       clearTimeout(t1);
@@ -25,6 +26,7 @@ export const PageLoader = () => {
       clearTimeout(t3);
       clearTimeout(t4);
       clearTimeout(t5);
+      clearTimeout(t6);
     };
   }, []);
 
