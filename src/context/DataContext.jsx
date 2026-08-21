@@ -111,9 +111,19 @@ export const DataProvider = ({ children }) => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(targetItem));
         setLastSyncTime(new Date().toLocaleTimeString());
 
-        // Sync remote analytics
+        // Sync remote analytics preserving highest total
         if (targetItem.analytics && typeof targetItem.analytics === 'object') {
-          setAnalytics(targetItem.analytics);
+          setAnalytics((prev) => {
+            const remoteTotal = targetItem.analytics.totalVisitors || 0;
+            const localTotal = prev?.totalVisitors || 0;
+            const highestTotal = Math.max(remoteTotal, localTotal);
+            return {
+              ...defaultAnalytics,
+              ...prev,
+              ...targetItem.analytics,
+              totalVisitors: highestTotal,
+            };
+          });
         }
 
         if (showNotification) {
@@ -140,7 +150,7 @@ export const DataProvider = ({ children }) => {
     return false;
   }, [addToast]);
 
-  const [analytics, setAnalytics] = useState(() => {
+  const [analytics, setAnalyticsState] = useState(() => {
     try {
       const cached = localStorage.getItem('portfolio_analytics_v4');
       if (cached) {
@@ -153,17 +163,27 @@ export const DataProvider = ({ children }) => {
     return defaultAnalytics;
   });
 
+  const analyticsRef = React.useRef(analytics);
+
+  const setAnalytics = useCallback((valOrFn) => {
+    setAnalyticsState((prev) => {
+      const next = typeof valOrFn === 'function' ? valOrFn(prev) : valOrFn;
+      analyticsRef.current = next;
+      return next;
+    });
+  }, []);
+
   // Record visitor event with IP, device name, and remote sync
   const recordVisitEvent = useCallback(async (baseAnalytics = null, targetId = null) => {
     try {
-      const sessionKey = 'portfolio_visit_session_logged_v4';
+      const sessionKey = 'portfolio_visit_logged_' + new Date().toISOString().slice(0, 10);
       const isSessionLogged = sessionStorage.getItem(sessionKey);
 
       // Extract client specs + IP address
       const client = await getClientMetadata();
 
-      // Fetch latest item from Mokky server to ensure global count is synchronized across all devices
-      let remoteItem = null;
+      // Fetch latest item from Mokky server
+      let remoteAnalytics = null;
       let recId = targetId || recordId || localStorage.getItem('portfolio_mokky_record_id');
 
       try {
@@ -171,11 +191,14 @@ export const DataProvider = ({ children }) => {
         if (res.ok) {
           const json = await res.json();
           if (Array.isArray(json) && json.length > 0) {
-            remoteItem = json[json.length - 1];
+            const remoteItem = json[json.length - 1];
             if (remoteItem && remoteItem.id) {
               recId = remoteItem.id;
               setRecordId(remoteItem.id);
               localStorage.setItem('portfolio_mokky_record_id', String(remoteItem.id));
+            }
+            if (remoteItem && remoteItem.analytics) {
+              remoteAnalytics = remoteItem.analytics;
             }
           }
         }
@@ -183,28 +206,38 @@ export const DataProvider = ({ children }) => {
         console.warn('Failed to fetch latest Mokky item:', e);
       }
 
-      const activeAnalytics = remoteItem?.analytics || baseAnalytics || defaultAnalytics;
+      const currentLocal = analyticsRef.current || defaultAnalytics;
+      const base = remoteAnalytics || baseAnalytics || currentLocal;
 
-      // Check if session was already logged in this browser tab
-      if (isSessionLogged && (activeAnalytics?.totalVisitors || 0) > 0) {
-        setAnalytics(activeAnalytics);
-        return activeAnalytics;
+      const remoteTotal = remoteAnalytics?.totalVisitors || 0;
+      const localTotal = currentLocal?.totalVisitors || 0;
+      const highestCountSoFar = Math.max(remoteTotal, localTotal);
+
+      // Check session logging
+      if (isSessionLogged && highestCountSoFar > 0) {
+        const synced = {
+          ...defaultAnalytics,
+          ...base,
+          totalVisitors: highestCountSoFar,
+        };
+        setAnalytics(synced);
+        return synced;
       }
 
       sessionStorage.setItem(sessionKey, 'true');
 
-      const visitedUUIDs = Array.isArray(activeAnalytics?.visitedUUIDs) ? activeAnalytics.visitedUUIDs : [];
+      const visitedUUIDs = Array.isArray(base?.visitedUUIDs) ? base.visitedUUIDs : [];
       const isNewUUID = client.isFirstVisit || !visitedUUIDs.includes(client.visitorId);
 
       const updatedUUIDs = isNewUUID ? [...visitedUUIDs, client.visitorId] : visitedUUIDs;
 
-      const devices = { ...defaultAnalytics.devices, ...(activeAnalytics?.devices || {}) };
+      const devices = { ...defaultAnalytics.devices, ...(base?.devices || {}) };
       devices[client.deviceType] = (devices[client.deviceType] || 0) + 1;
 
-      const osMap = { ...defaultAnalytics.os, ...(activeAnalytics?.os || {}) };
+      const osMap = { ...defaultAnalytics.os, ...(base?.os || {}) };
       osMap[client.os] = (osMap[client.os] || 0) + 1;
 
-      const browserMap = { ...defaultAnalytics.browsers, ...(activeAnalytics?.browsers || {}) };
+      const browserMap = { ...defaultAnalytics.browsers, ...(base?.browsers || {}) };
       browserMap[client.browser] = (browserMap[client.browser] || 0) + 1;
 
       const now = new Date();
@@ -228,24 +261,25 @@ export const DataProvider = ({ children }) => {
         browser: client.browser,
         screenResolution: client.screenResolution,
         ip: client.ip,
-        action: isNewUUID
-          ? `✨ Ilk Tashrif: ${client.deviceName}`
-          : `🔄 Tashrif: ${client.deviceName}`,
+        action: isNewUUID ? `✨ Ilk Tashrif: ${client.deviceName}` : `🔄 Tashrif: ${client.deviceName}`,
         detail: `${client.deviceName} | IP: ${client.ip} | ${client.browser} (${client.os}) | Ekran: ${client.screenResolution}`,
       };
 
+      const existingLogs = Array.isArray(base?.recentLogs) ? base.recentLogs : [];
+      const combinedLogs = [logEntry, ...existingLogs.filter((l) => l.id !== logEntry.id)].slice(0, 150);
+
       const updated = {
         ...defaultAnalytics,
-        ...activeAnalytics,
-        totalVisitors: (activeAnalytics?.totalVisitors || 0) + 1,
-        uniqueVisitors: (activeAnalytics?.uniqueVisitors || 0) + (isNewUUID ? 1 : 0),
-        firstVisits: (activeAnalytics?.firstVisits || 0) + (isNewUUID ? 1 : 0),
-        repeatVisits: (activeAnalytics?.repeatVisits || 0) + (isNewUUID ? 0 : 1),
+        ...base,
+        totalVisitors: highestCountSoFar + 1,
+        uniqueVisitors: (base?.uniqueVisitors || 0) + (isNewUUID ? 1 : 0),
+        firstVisits: (base?.firstVisits || 0) + (isNewUUID ? 1 : 0),
+        repeatVisits: (base?.repeatVisits || 0) + (isNewUUID ? 0 : 1),
         visitedUUIDs: updatedUUIDs,
         devices,
         os: osMap,
         browsers: browserMap,
-        recentLogs: [logEntry, ...(activeAnalytics?.recentLogs || []).slice(0, 99)],
+        recentLogs: combinedLogs,
       };
 
       setAnalytics(updated);
@@ -260,7 +294,7 @@ export const DataProvider = ({ children }) => {
     } catch (err) {
       console.error('Visit tracking execution error:', err);
     }
-  }, [recordId]);
+  }, [recordId, setAnalytics]);
 
   // Track visit on mount
   useEffect(() => {
@@ -285,14 +319,14 @@ export const DataProvider = ({ children }) => {
             action: actionName,
             detail: detail || `${client.deviceName} (${client.ip})`,
           },
-          ...(prev.recentLogs || []).slice(0, 99),
+          ...(prev.recentLogs || []).slice(0, 150),
         ],
       };
       localStorage.setItem('portfolio_analytics_v4', JSON.stringify(updated));
       patchAnalyticsToRemote(updated);
       return updated;
     });
-  }, []);
+  }, [setAnalytics]);
 
   const trackSectionView = useCallback((sectionId) => {
     const key = (sectionId || '').toLowerCase();
@@ -306,15 +340,15 @@ export const DataProvider = ({ children }) => {
           [key]: (currentViews[key] || 0) + 1,
         },
       };
-      localStorage.setItem('portfolio_analytics_v3', JSON.stringify(updated));
+      localStorage.setItem('portfolio_analytics_v4', JSON.stringify(updated));
       patchAnalyticsToRemote(updated);
       return updated;
     });
-  }, []);
+  }, [setAnalytics]);
 
-  const trackProjectClick = useCallback((projectTitle) => {
+  const trackProjectClick = useCallback(async (projectTitle) => {
     if (!projectTitle) return;
-    const client = getClientMetadata();
+    const client = await getClientMetadata();
     setAnalytics((prev) => {
       const currentClicks = prev.projectClicks || {};
       const updated = {
@@ -329,36 +363,38 @@ export const DataProvider = ({ children }) => {
             timestamp: new Date().toLocaleString('uz-UZ'),
             visitorId: client.visitorId,
             deviceType: client.deviceType,
+            deviceName: client.deviceName,
             os: client.os,
             browser: client.browser,
+            ip: client.ip,
             action: `🚀 Loyiha ko'rildi: "${projectTitle}"`,
-            detail: `Projects Section | ${client.deviceType} (${client.os})`,
+            detail: `Projects Section | ${client.deviceName} (${client.ip})`,
           },
-          ...(prev.recentLogs || []).slice(0, 99),
+          ...(prev.recentLogs || []).slice(0, 150),
         ],
       };
-      localStorage.setItem('portfolio_analytics_v3', JSON.stringify(updated));
+      localStorage.setItem('portfolio_analytics_v4', JSON.stringify(updated));
       patchAnalyticsToRemote(updated);
       return updated;
     });
-  }, []);
+  }, [setAnalytics]);
 
   const resetAnalytics = useCallback(async () => {
     const resetData = {
       ...defaultAnalytics,
     };
     setAnalytics(resetData);
-    localStorage.setItem('portfolio_analytics_v3', JSON.stringify(resetData));
+    localStorage.setItem('portfolio_analytics_v4', JSON.stringify(resetData));
     await patchAnalyticsToRemote(resetData);
     addToast('Statistika va loglar tozalandi!', 'success');
-  }, [addToast]);
+  }, [addToast, setAnalytics]);
 
   // Initial load on startup
   useEffect(() => {
     fetchFromMokky(false);
   }, [fetchFromMokky]);
 
-  // Save to mokky.dev via PATCH or POST
+  // Save to mokky.dev via PATCH or POST - ALWAYS ATTACH CURRENT ANALYTICS
   const saveToMokky = async (newData, showNotification = true) => {
     setIsPushing(true);
     try {
@@ -366,10 +402,16 @@ export const DataProvider = ({ children }) => {
       let url = currentId ? `${MOKKY_ENDPOINT}/${currentId}` : MOKKY_ENDPOINT;
       let method = currentId ? 'PATCH' : 'POST';
 
+      // Always include current analytics so saving portfolio data NEVER wipes analytics on Mokky!
+      const payloadToSave = {
+        ...newData,
+        analytics: analyticsRef.current || defaultAnalytics,
+      };
+
       let response = await fetch(url, {
         method: method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newData),
+        body: JSON.stringify(payloadToSave),
       });
 
       if (!response.ok && (response.status === 404 || response.status === 405)) {
@@ -377,7 +419,7 @@ export const DataProvider = ({ children }) => {
         response = await fetch(MOKKY_ENDPOINT, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newData),
+          body: JSON.stringify(payloadToSave),
         });
       }
 
@@ -392,7 +434,7 @@ export const DataProvider = ({ children }) => {
       }
 
       setLastSyncTime(new Date().toLocaleTimeString());
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payloadToSave));
 
       if (showNotification) {
         addToast('Barcha o\'zgarishlar https://2e531a260b0c7ba6.mokky.dev/all manziliga saqlandi!', 'success');
