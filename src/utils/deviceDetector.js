@@ -117,21 +117,16 @@ export const detectBrowser = () => {
  */
 export const fetchUserIP = async () => {
   try {
-    const res = await fetch('https://api.ipify.org?format=json');
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 600);
+    const res = await fetch('https://api.ipify.org?format=json', { signal: controller.signal });
+    clearTimeout(timer);
     if (res.ok) {
       const data = await res.json();
       if (data && data.ip) return data.ip;
     }
-  } catch (e) {
-    try {
-      const res2 = await fetch('https://api.db-ip.com/v2/free/self');
-      if (res2.ok) {
-        const data2 = await res2.json();
-        if (data2 && data2.ipAddress) return data2.ipAddress;
-      }
-    } catch (e2) {}
-  }
-  return 'Anonim IP (yashirin)';
+  } catch (e) {}
+  return 'Foydalanuvchi IP (Faqat tarmoq)';
 };
 
 /**

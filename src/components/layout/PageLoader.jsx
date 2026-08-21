@@ -12,36 +12,19 @@ export const PageLoader = () => {
   const [shouldRender, setShouldRender] = useState(true);
 
   useEffect(() => {
-    let timer;
-    let finishTimer;
-
-    // Simulate smooth progress animation
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 90) {
-          clearInterval(interval);
-          return 90;
-        }
-        return prev + Math.floor(Math.random() * 15 + 10);
-      });
-    }, 120);
-
-    if (!isLoading) {
-      setProgress(100);
-      timer = setTimeout(() => {
-        setIsDone(true);
-        finishTimer = setTimeout(() => {
-          setShouldRender(false);
-        }, 700); // fade out duration
-      }, 400); // pause at 100% briefly for smooth visual
-    }
+    // Ultra-fast progress transition (total ~350ms intro, 200ms fadeout)
+    const t1 = setTimeout(() => setProgress(70), 60);
+    const t2 = setTimeout(() => setProgress(100), 180);
+    const t3 = setTimeout(() => setIsDone(true), 300);
+    const t4 = setTimeout(() => setShouldRender(false), 550);
 
     return () => {
-      clearInterval(interval);
-      clearTimeout(timer);
-      clearTimeout(finishTimer);
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      clearTimeout(t4);
     };
-  }, [isLoading]);
+  }, []);
 
   if (!shouldRender) return null;
 
