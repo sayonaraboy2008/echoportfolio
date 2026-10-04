@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useData } from '../../context/DataContext';
 import { useTheme } from '../../context/ThemeContext';
-import { Menu, X, ArrowUpRight, Sun, Moon } from 'lucide-react';
+import { Menu, X, ArrowUpRight, Sun, Moon, Terminal } from 'lucide-react';
 
 export const Navbar = () => {
   const { lang, setLang, t } = useLanguage();
@@ -24,7 +24,6 @@ export const Navbar = () => {
     { href: '#skills', label: t('nav.skills') },
     { href: '#projects', label: t('nav.projects') },
     { href: '#experience', label: t('nav.experience') },
-    { href: '#terminal', label: t('nav.terminal') },
     { href: '#contact', label: t('nav.contact') },
   ];
 
@@ -62,8 +61,18 @@ export const Navbar = () => {
           ))}
         </nav>
 
-        {/* Actions (Theme Toggle, Lang & Contact CTA) */}
+        {/* Actions (Theme Toggle, Terminal Icon, Lang & Contact CTA) */}
         <div className="hidden sm:flex items-center gap-2.5">
+          {/* Terminal Icon Button */}
+          <a
+            href="#terminal"
+            className="p-2 rounded-xl bg-slate-100 dark:bg-[#0c1017] border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-accent-cyan hover:text-accent-cyan hover:border-accent-cyan/50 hover:scale-110 active:scale-95 transition-all shadow-sm cursor-pointer flex items-center justify-center"
+            title={t('terminal.title')}
+            aria-label="Interactive Terminal"
+          >
+            <Terminal className="w-4 h-4" />
+          </a>
+
           {/* Theme Toggle Button */}
           <button
             onClick={toggleTheme}
@@ -110,6 +119,16 @@ export const Navbar = () => {
 
         {/* Mobile Controls */}
         <div className="flex sm:hidden items-center gap-2">
+          {/* Mobile Terminal Button */}
+          <a
+            href="#terminal"
+            className="p-1.5 rounded-lg bg-slate-100 dark:bg-[#0c1017] border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-accent-cyan"
+            aria-label="Terminal"
+            title={t('terminal.title')}
+          >
+            <Terminal className="w-4 h-4" />
+          </a>
+
           {/* Mobile Theme Toggle */}
           <button
             onClick={toggleTheme}
