@@ -165,7 +165,7 @@
         "en": "A modern human-centric digital web application and course platform built for seamless user experience and accessibility.",
         "uz": "Insonlar uchun qulay, yuqori tezlik va zamonaviy UI/UX dizayniga ega bo'lgan innovatsion platforma."
       },
-      "image": "https://picsum.photos/seed/apinline-suite/700/500",
+      "image": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1000&auto=format&fit=crop&q=80",
       "tags": [
         "React",
         "JavaScript",
@@ -184,7 +184,7 @@
         "en": "A retro-cyber hacker-themed developer portfolio equipped with an interactive Linux command shell and 3D WebGL terrain.",
         "uz": "Real vaqtli Linux CLI terminali, 3D to'lqinli grid va ko'p tilli tizimga ega bo'lgan interaktiv portfolio."
       },
-      "image": "https://picsum.photos/seed/cyber-terminal/700/500",
+      "image": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1000&auto=format&fit=crop&q=80",
       "tags": [
         "Three.js",
         "JavaScript",
@@ -203,7 +203,7 @@
         "en": "A modern lighting and decor collection web app with interactive galleries, category sorting, and fast client-side rendering.",
         "uz": "Interaktiv galereyalar, saralash va tezkor ishlash imkoniyatiga ega bo'lgan zamonaviy yoritish tizimlari katalogi."
       },
-      "image": "https://picsum.photos/seed/lighting-catalog/700/500",
+      "image": "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?w=1000&auto=format&fit=crop&q=80",
       "tags": [
         "React",
         "Tailwind CSS",
@@ -222,7 +222,7 @@
         "en": "Direct Telegram bot communication engine allowing clients to send instant feedback from contact forms straight to chat channels.",
         "uz": "Mijozlar yuborgan xabarlarni to'g'ridan-to'g'ri Telegram kanalga yetkazib beruvchi avtomatlashtirilgan tizim."
       },
-      "image": "https://picsum.photos/seed/telegram-bot/700/500",
+      "image": "https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=1000&auto=format&fit=crop&q=80",
       "tags": [
         "Node.js",
         "Telegram API",
@@ -241,7 +241,7 @@
         "en": "An educational dashboard for tracking student coding milestones, homework submissions, and frontend bootcamp progression.",
         "uz": "O'quvchilarning dasturlash bo'yicha ko'nikmalari, vazifalari va darslardagi rivojlanishini kuzatish tizimi."
       },
-      "image": "https://picsum.photos/seed/mentor-dash/700/500",
+      "image": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1000&auto=format&fit=crop&q=80",
       "tags": [
         "React",
         "JavaScript",
@@ -359,6 +359,40 @@
           "Veb-mahsulotlar, kurs sahifalari va interaktiv UI modullari ustida ishlash.",
           "Barcha qurilmalarda bir xil chiroyli va tez ishlashini ta'minlash."
         ]
+      }
+    }
+  ],
+  "education": [
+    {
+      "id": "edu-1",
+      "institution": "Namangan Davlat Universiteti (NamSU)",
+      "degree": {
+        "en": "Bachelor of Software Engineering / Information Technology",
+        "uz": "Axborot Texnologiyalari va Dasturiy Injiniring (Bakalavr)"
+      },
+      "period": {
+        "en": "2021 — 2025",
+        "uz": "2021 — 2025"
+      },
+      "description": {
+        "en": "Deep dive into Computer Science fundamentals, software architecture, relational databases, algorithms, and web engineering principles.",
+        "uz": "Kompyuter ilmlari, dasturiy injiniring tamoyillari, algoritmlar hamda ma'lumotlar bazalarini loyihalash bo'yicha oliy akademik ta'lim."
+      }
+    },
+    {
+      "id": "edu-2",
+      "institution": "IT Academy & Front-End Specialization",
+      "degree": {
+        "en": "Certified Modern Front-End Engineer & React Specialist",
+        "uz": "Professional Front-End va React Dasturchi Sertifikati"
+      },
+      "period": {
+        "en": "2022 — 2023",
+        "uz": "2022 — 2023"
+      },
+      "description": {
+        "en": "Completed intensive full-stack frontend track: HTML5/CSS3, JavaScript ES6+, React.js, Tailwind CSS, State Management, and REST APIs.",
+        "uz": "Intensiv tayyorlov kursi: HTML5/CSS3, JavaScript (ES6+), React.js, Tailwind CSS va APIlar bilan ishlash bo'yicha amaliy daraja."
       }
     }
   ]

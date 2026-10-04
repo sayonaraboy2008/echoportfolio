@@ -5,9 +5,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { PageLoader } from './components/layout/PageLoader';
-import { CustomCursor } from './components/layout/CustomCursor';
 import { BackgroundGlows } from './components/layout/BackgroundGlows';
-import { ParticleBackground } from './components/home/ParticleBackground';
 import { HeroSection } from './components/home/HeroSection';
 import { AboutSection } from './components/home/AboutSection';
 import { SkillsSection } from './components/home/SkillsSection';
@@ -40,9 +38,9 @@ const ScrollToTopButton = () => {
     <button
       onClick={scrollToTop}
       aria-label="Scroll to top"
-      className="fixed bottom-6 right-6 z-40 p-3 rounded-xl bg-white/90 dark:bg-[#0c1017]/90 border border-slate-200 dark:border-slate-700/80 text-sky-600 dark:text-accent-cyan hover:bg-sky-500 dark:hover:bg-accent-cyan hover:text-white dark:hover:text-slate-950 transition-all shadow-xl hover:scale-110 active:scale-95 cursor-pointer group backdrop-blur-md"
+      className="fixed bottom-6 right-6 z-40 p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-accent-cyan hover:bg-slate-800 transition-all shadow-xl hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-md"
     >
-      <ArrowUp className="w-5 h-5 transition-transform group-hover:-translate-y-0.5" />
+      <ArrowUp className="w-4 h-4" />
     </button>
   );
 };
@@ -76,11 +74,6 @@ export default function App() {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
 
-  const handleOpenAdmin = (authenticated = false) => {
-    setIsAdminAuthenticated(authenticated);
-    setIsAdminOpen(true);
-  };
-
   // Secret keyboard shortcut (Ctrl + Shift + A) to open Admin Panel
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -93,7 +86,7 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Ensure refresh stays at the top if no hash is present in URL
+  // Ensure refresh stays at top if no hash in URL
   useEffect(() => {
     if (!window.location.hash) {
       window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
@@ -104,40 +97,34 @@ export default function App() {
     <ThemeProvider>
       <DataProvider>
         <LanguageProvider>
-          {/* Full Page Initial / Refresh Loading Animation */}
+          {/* Page Loader */}
           <PageLoader />
 
-          <div className="relative min-h-screen bg-[#f8fafc] dark:bg-[#05070c] text-slate-800 dark:text-slate-200 selection:bg-accent-cyan/30 selection:text-white font-sans antialiased overflow-hidden transition-colors duration-300">
+          <div className="relative min-h-screen bg-slate-50 dark:bg-[#060913] text-slate-800 dark:text-slate-200 font-sans antialiased selection:bg-accent-cyan/30 selection:text-white transition-colors duration-300">
             {/* Automatic Visitor Section Observer */}
             <SectionTracker />
 
-            {/* Custom Interactive Glowing Cursor */}
-            <CustomCursor />
-
-            {/* Ambient Cyber Grid & Floating Glowing Neon Orbs */}
+            {/* Ambient Background Glow */}
             <BackgroundGlows />
 
-            {/* Three.js 3D Undulating Wave Terrain & Floating Starfield */}
-            <ParticleBackground />
-
-            {/* Toast Notification Container */}
+            {/* Toast Notifications */}
             <Toast />
 
-            {/* Navigation Bar */}
+            {/* Header Navbar */}
             <Navbar />
 
             {/* Main Portfolio Sections */}
-            <main className="relative z-10 space-y-10 sm:space-y-12">
+            <main className="relative z-10 space-y-12 sm:space-y-16">
               <HeroSection />
               <AboutSection />
-              <SkillsSection />
               <ProjectsSection />
+              <SkillsSection />
               <ExperienceSection />
-              <TerminalSection onOpenAdmin={handleOpenAdmin} />
+              <TerminalSection onOpenAdmin={() => setIsAdminOpen(true)} />
               <ContactSection />
             </main>
 
-            {/* Floating Scroll to Top */}
+            {/* Scroll to Top */}
             <ScrollToTopButton />
 
             {/* Footer */}

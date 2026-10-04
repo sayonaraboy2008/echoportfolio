@@ -534,6 +534,23 @@ export const DataProvider = ({ children }) => {
     commitAndSave(updated, 'Tajriba o\'chirildi va mokky.dev da yangilandi!');
   };
 
+  // Education update
+  const updateEducation = (eduList) => {
+    const updated = { ...data, education: eduList };
+    commitAndSave(updated, 'Ta\'lim ma\'lumotlari saqlandi va mokky.dev da yangilandi!');
+  };
+
+  const addEducation = (eduItem) => {
+    const newEdu = { ...eduItem, id: eduItem.id || `edu-${Date.now()}` };
+    const updated = { ...data, education: [newEdu, ...(data.education || [])] };
+    commitAndSave(updated, 'Ta\'lim maskani qo\'shildi va mokky.dev ga saqlandi!');
+  };
+
+  const deleteEducation = (id) => {
+    const updated = { ...data, education: (data.education || []).filter((e) => e.id !== id) };
+    commitAndSave(updated, 'Ta\'lim ma\'lumoti o\'chirildi va mokky.dev da yangilandi!');
+  };
+
   // Admin PIN update
   const updateAdminPin = (newPin) => {
     const updated = { ...data, adminPin: newPin };
@@ -602,6 +619,9 @@ export const DataProvider = ({ children }) => {
         updateExperience,
         addExperience,
         deleteExperience,
+        updateEducation,
+        addEducation,
+        deleteEducation,
         updateAdminPin,
         exportJson,
         importJson,

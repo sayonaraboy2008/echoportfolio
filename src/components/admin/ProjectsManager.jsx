@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useData } from '../../context/DataContext';
 import { GithubIcon } from '../ui/SocialIcon';
-import { Plus, Edit2, Trash2, ExternalLink, Sparkles, Check, X, Image as ImageIcon } from 'lucide-react';
+import { Plus, Edit2, Trash2, ExternalLink, Sparkles, Check, X, Image as ImageIcon, Upload, Camera, Loader2 } from 'lucide-react';
 
 export const ProjectsManager = () => {
-  const { data, addProject, updateProject, deleteProject } = useData();
+  const { data, addProject, updateProject, deleteProject, addToast } = useData();
   const projects = data.projects || [];
 
   const [editingId, setEditingId] = useState(null);
   const [isAdding, setIsAdding] = useState(false);
+  const [isCapturing, setIsCapturing] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef(null);
 
   const initialProjectForm = {
     title: '',
@@ -49,6 +52,91 @@ export const ProjectsManager = () => {
   const handleCancel = () => {
     setEditingId(null);
     setIsAdding(false);
+  };
+
+  // Helper: Compress image file via HTML Canvas before saving Data URL
+  const compressImageFile = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const maxWidth = 900;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.82);
+          resolve(compressedDataUrl);
+        };
+        img.onerror = (err) => reject(err);
+        img.src = e.target.result;
+      };
+      reader.onerror = (err) => reject(err);
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // Handle local file upload
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      if (addToast) addToast('Faqat rasm fayli tanlashingiz mumkin (PNG, JPG, WEBP)!', 'error');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const compressedUrl = await compressImageFile(file);
+      setForm((prev) => ({ ...prev, image: compressedUrl }));
+      if (addToast) addToast('Kompyuterdan rasm muvaffaqiyatli yuklandi va optimallashtirildi!', 'success');
+    } catch (err) {
+      console.error('File upload error:', err);
+      if (addToast) addToast('Rasm faylini o\'qishda xatolik yuz berdi', 'error');
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  // Handle auto screenshot capture from Live Demo URL (Free open APIs: Microlink & WP mShots)
+  const handleAutoScreenshot = async (engine = 'microlink') => {
+    const targetUrl = form.demoUrl?.trim();
+    if (!targetUrl || targetUrl === 'https://' || !targetUrl.startsWith('http')) {
+      if (addToast) addToast('Iltimos, avval Live Demo URL maydoniga to\'g\'ri sayt havolasini kiriting! (masalan: https://example.com)', 'error');
+      return;
+    }
+
+    setIsCapturing(true);
+    try {
+      let screenshotUrl = '';
+      if (engine === 'wpshots') {
+        // WordPress mShots (100% free open API)
+        screenshotUrl = `https://s0.wp.com/mshots/v1/${encodeURIComponent(targetUrl)}?w=1200`;
+      } else {
+        // Microlink API (High resolution free screenshot embed)
+        screenshotUrl = `https://api.microlink.io/?url=${encodeURIComponent(targetUrl)}&screenshot=true&embed=screenshot.url`;
+      }
+
+      setForm((prev) => ({ ...prev, image: screenshotUrl }));
+      if (addToast) addToast('Saytdan avtomatik skrinshot olindi va rasmga o\'rnatildi!', 'success');
+    } catch (err) {
+      console.error('Screenshot error:', err);
+      if (addToast) addToast('Skrinshot olishda xatolik yuz berdi', 'error');
+    } finally {
+      setIsCapturing(false);
+    }
   };
 
   const handleSave = (e) => {
@@ -167,17 +255,125 @@ export const ProjectsManager = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-mono text-slate-400 mb-1">Image URL</label>
-              <input
-                type="text"
-                value={form.image}
-                onChange={(e) => setForm({ ...form, image: e.target.value })}
-                placeholder="https://images..."
-                className="w-full bg-[#0d1117] border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-accent-mint"
-              />
+          {/* Enhanced Image & Screenshot Section */}
+          <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-mono font-bold text-slate-300 flex items-center gap-1.5">
+                <ImageIcon className="w-4 h-4 text-accent-mint" />
+                <span>Loyiha Rasmi / Skrinshoti</span>
+              </label>
+              <span className="text-[11px] text-slate-500 font-mono">Yuklash, URL yoki Avto-skrinshot</span>
             </div>
+
+            <div className="flex flex-col md:flex-row gap-4 items-start">
+              {/* Image Preview Thumbnail */}
+              <div className="relative w-full md:w-44 h-28 rounded-lg bg-slate-900 border border-slate-700 overflow-hidden shrink-0 group flex items-center justify-center">
+                {form.image ? (
+                  <img
+                    src={form.image}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = 'https://picsum.photos/seed/error/400/250';
+                    }}
+                  />
+                ) : (
+                  <div className="text-center p-2 text-slate-500 text-xs">Rasm mavjud emas</div>
+                )}
+                {isCapturing && (
+                  <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center gap-1 text-accent-mint">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span className="text-[10px] font-mono">Skrinshot olinmoqda...</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Upload & Capture Buttons + URL input */}
+              <div className="flex-1 w-full space-y-2.5">
+                {/* Action Buttons */}
+                <div className="flex flex-wrap items-center gap-2">
+                  {/* File Upload Button */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    disabled={isUploading || isCapturing}
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono bg-slate-800 text-slate-200 hover:bg-slate-700 hover:text-white transition-all border border-slate-700 disabled:opacity-50"
+                  >
+                    {isUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5 text-accent-cyan" />}
+                    <span>Kompyuterdan rasm yuklash</span>
+                  </button>
+
+                  {/* Auto Screenshot Buttons */}
+                  <button
+                    type="button"
+                    disabled={isCapturing || isUploading}
+                    onClick={() => handleAutoScreenshot('microlink')}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono bg-indigo-950/80 text-indigo-200 hover:bg-indigo-900 transition-all border border-indigo-700/50 disabled:opacity-50"
+                  >
+                    {isCapturing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Camera className="w-3.5 h-3.5 text-indigo-400" />}
+                    <span>📸 HD Skrinshot (Microlink)</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={isCapturing || isUploading}
+                    onClick={() => handleAutoScreenshot('wpshots')}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono bg-cyan-950/80 text-cyan-200 hover:bg-cyan-900 transition-all border border-cyan-700/50 disabled:opacity-50"
+                  >
+                    {isCapturing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Camera className="w-3.5 h-3.5 text-cyan-400" />}
+                    <span>⚡ WP mShots Skrinshot</span>
+                  </button>
+                </div>
+
+                {/* Direct Image URL input */}
+                <div>
+                  <input
+                    type="text"
+                    value={form.image}
+                    onChange={(e) => setForm({ ...form, image: e.target.value })}
+                    placeholder="https://... yoki base64 rasm kodi"
+                    className="w-full bg-[#0d1117] border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-accent-mint"
+                  />
+                </div>
+
+                {/* Preset image suggestions */}
+                <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-mono flex-wrap">
+                  <span>Tayyor rasm vizual topshiriqlar:</span>
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=80' })}
+                    className="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300"
+                  >
+                    Code Editor
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=80' })}
+                    className="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300"
+                  >
+                    Dashboard UI
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, image: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&auto=format&fit=crop&q=80' })}
+                    className="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300"
+                  >
+                    Cyber/Matrix
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-mono text-slate-400 mb-1">Tags (Comma separated)</label>
               <input
@@ -188,11 +384,8 @@ export const ProjectsManager = () => {
                 className="w-full bg-[#0d1117] border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-accent-mint"
               />
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-mono text-slate-400 mb-1">Live Demo URL</label>
+              <label className="block text-xs font-mono text-slate-400 mb-1">Live Demo URL (Skrinshot uchun zarur)</label>
               <input
                 type="text"
                 value={form.demoUrl}
@@ -201,6 +394,9 @@ export const ProjectsManager = () => {
                 className="w-full bg-[#0d1117] border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-accent-mint"
               />
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-mono text-slate-400 mb-1">GitHub Code URL</label>
               <input

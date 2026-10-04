@@ -7,6 +7,7 @@ import { ProjectsManager } from './ProjectsManager';
 import { SocialsManager } from './SocialsManager';
 import { SkillsManager } from './SkillsManager';
 import { ExperienceManager } from './ExperienceManager';
+import { EducationManager } from './EducationManager';
 import { JsonSyncManager } from './JsonSyncManager';
 import { AnalyticsManager } from './AnalyticsManager';
 import {
@@ -17,6 +18,7 @@ import {
   Share2,
   Cpu,
   Briefcase,
+  GraduationCap,
   Database,
   BarChart3,
   LogOut,
@@ -62,6 +64,7 @@ export const AdminModal = ({ isOpen, onClose, isAuthenticated: propAuth = false 
     { id: 'socials', label: t('admin.tabSocials'), icon: Share2 },
     { id: 'skills', label: t('admin.tabSkills'), icon: Cpu },
     { id: 'experience', label: t('admin.tabExperience'), icon: Briefcase },
+    { id: 'education', label: "🎓 Ta'lim", icon: GraduationCap },
     { id: 'json', label: t('admin.tabJson'), icon: Database },
   ];
 
@@ -149,6 +152,7 @@ export const AdminModal = ({ isOpen, onClose, isAuthenticated: propAuth = false 
             {activeTab === 'socials' && <SocialsManager />}
             {activeTab === 'skills' && <SkillsManager />}
             {activeTab === 'experience' && <ExperienceManager />}
+            {activeTab === 'education' && <EducationManager />}
             {activeTab === 'json' && <JsonSyncManager />}
           </div>
         </div>

@@ -20,7 +20,6 @@ export const Navbar = () => {
   }, []);
 
   const navLinks = [
-    { href: '#home', label: t('nav.home') },
     { href: '#about', label: t('nav.about') },
     { href: '#skills', label: t('nav.skills') },
     { href: '#projects', label: t('nav.projects') },
