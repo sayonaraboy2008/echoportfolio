@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://abduraximov.vercel.app/sitemap.xml
